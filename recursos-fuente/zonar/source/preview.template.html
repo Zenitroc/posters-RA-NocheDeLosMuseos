@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZonAR · vista previa de la animación AR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#24363a; --muted:#5f7a80; --teal:#5a8287; --teal-deep:#3f5f64;
+  --paper:#f6f6f6; --surface:#e9eeee; --line:#cfd9da; --red:#f53b00; --orange:#fc9045;
+  --stage:#dfe6e7; --check-a:#e6eaea; --check-b:#f7f9f9;
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e4ecec; --muted:#9db3b6; --teal:#7fa9ae; --teal-deep:#a9c8cb;
+  --paper:#1d2729; --surface:#243133; --line:#34474a; --stage:#151d1f; --check-a:#2a3638; --check-b:#334244;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{--ink:#e4ecec;--muted:#9db3b6;--teal:#7fa9ae;--teal-deep:#a9c8cb;--paper:#1d2729;--surface:#243133;--line:#34474a;--stage:#151d1f;--check-a:#2a3638;--check-b:#334244;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);font:15px/1.5 Inter,"Helvetica Neue",Arial,sans-serif;display:grid;grid-template-columns:minmax(0,1fr) 320px;}
+@media (max-width:860px){body{grid-template-columns:1fr;height:auto}}
+.stage{background:var(--stage);display:flex;align-items:center;justify-content:center;padding:24px;min-height:60vh;overflow:hidden}
+.frame{position:relative;height:min(calc(100vh - 48px),1600px);aspect-ratio:1131/1600;max-width:100%;box-shadow:0 1px 0 var(--line),0 18px 40px -24px rgba(20,40,44,.45)}
+@media (max-width:860px){.frame{height:auto;width:100%}}
+.frame>*{position:absolute;inset:0;width:100%;height:100%;display:block}
+.frame.checker{background:repeating-conic-gradient(var(--check-a) 0 25%,var(--check-b) 0 50%) 0 0/24px 24px}
+#wipe{cursor:ew-resize}
+.frame>[hidden]{display:none}
+#wipeLine{position:absolute;top:0;bottom:0;width:2px;background:var(--red);left:50%;pointer-events:none}
+#wipeLine::after{content:"";position:absolute;top:50%;left:-9px;width:20px;height:20px;border-radius:50%;background:var(--red);transform:translateY(-50%)}
+aside{padding:28px 24px;display:flex;flex-direction:column;gap:26px;border-left:1px solid var(--line)}
+h1{font-size:28px;line-height:1.1;margin:0;font-weight:600;color:var(--teal);letter-spacing:-.01em}
+h1 small{display:block;font-size:15px;color:var(--muted);font-weight:500;margin-top:6px;letter-spacing:0}
+h2{font-size:13px;font-weight:600;margin:0 0 10px;color:var(--muted)}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.modes button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-size:14px;padding:9px 10px;border-radius:8px;text-align:left;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.hint{font-size:13px;color:var(--muted);margin:10px 0 0;min-height:3em}
+.transport{display:flex;align-items:center;gap:12px}
+.play{width:46px;height:46px;border-radius:50%;border:0;background:var(--red);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+.play svg{width:18px;height:18px;fill:currentColor}
+.time{font-variant-numeric:tabular-nums;font-size:22px;font-weight:500}
+.time span{color:var(--muted);font-size:14px}
+.timeline{position:relative;margin-top:14px}
+.timeline input{width:100%;accent-color:var(--teal);margin:0}
+.lanes{display:grid;gap:3px;margin-top:10px}
+.lane{position:relative;height:14px;font-size:11px;color:var(--muted)}
+.lane i{position:absolute;top:3px;height:8px;border-radius:4px;background:var(--teal);opacity:.75}
+.lane b{position:absolute;right:100%;margin-right:8px;white-space:nowrap;font-weight:500;display:none}
+.lane-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.lanes-wrap{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;align-items:center;font-size:12px;color:var(--muted);margin-top:12px}
+.lanes-wrap .bar{position:relative;height:8px;background:var(--surface);border-radius:4px}
+.lanes-wrap .bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+.lanes-wrap .bar .ph{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+label.check{display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer;padding:4px 0}
+label.check input{accent-color:var(--teal);width:16px;height:16px}
+.meta{font-size:13px;color:var(--muted);margin-top:auto;border-top:1px solid var(--line);padding-top:14px}
+.meta strong{color:var(--ink);font-weight:500}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<main class="stage">
+  <div class="frame" id="frame">
+    <img id="orig" alt="Póster original ZonAR">
+    <video id="vid" muted playsinline loop preload="auto"></video>
+    <canvas id="cv" width="1131" height="1600"></canvas>
+    <canvas id="guides" width="1131" height="1600"></canvas>
+    <div id="wipe" hidden><div id="wipeLine"></div></div>
+  </div>
+</main>
+<aside>
+  <h1>ZonAR<small>Vista previa de la animación para WebAR</small></h1>
+  <section>
+    <h2>Qué ver</h2>
+    <div class="modes" role="group" aria-label="Modo de visualización">
+      <button data-mode="mp4" aria-pressed="true">Video MP4</button>
+      <button data-mode="live">Capa en vivo</button>
+      <button data-mode="original">Original</button>
+      <button data-mode="wipe">Comparar</button>
+      <button data-mode="diff">Diferencia</button>
+      <button data-mode="overlay">Solo capa AR</button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </section>
+  <section>
+    <div class="transport">
+      <button class="play" id="play" aria-label="Pausar"><svg viewBox="0 0 20 20" id="icon"><rect x="4" y="3" width="4" height="14" rx="1"/><rect x="12" y="3" width="4" height="14" rx="1"/></svg></button>
+      <div class="time" id="time">0,00 <span>/ 10,00 s</span></div>
+    </div>
+    <div class="timeline"><input type="range" id="scrub" min="0" max="10" step="0.0333" value="0" aria-label="Posición en la animación"></div>
+    <div class="lanes-wrap" id="lanes"></div>
+  </section>
+  <section>
+    <label class="check"><input type="checkbox" id="loop" checked> Repetir en bucle</label>
+    <label class="check"><input type="checkbox" id="showZones"> Mostrar zonas animadas</label>
+    <label class="check"><input type="checkbox" id="showGrid"> Mostrar grilla de alineación (10 %)</label>
+  </section>
+  <p class="meta"><strong>Póster</strong> 1131 × 1600 px · <strong>Video</strong> 1132 × 1600, H.264, 30 fps, 10 s, sin audio. El primer y el último fotograma son idénticos al póster impreso.</p>
+</aside>
+
+<script>__OVERLAY__</script>
+<script>
+const POSTER_SRC = "__POSTER__";
+const VIDEO_B64 = "__VIDEO__";
+const CONFIG = __CONFIG__;
+const W=1131,H=1600,DUR=10;
+const $=id=>document.getElementById(id);
+const orig=$('orig'), vid=$('vid'), cv=$('cv'), gd=$('guides'), ctx=cv.getContext('2d'), gctx=gd.getContext('2d');
+const frame=$('frame'), wipe=$('wipe'), wipeLine=$('wipeLine');
+orig.src=POSTER_SRC;
+try{const bin=atob(VIDEO_B64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);vid.src=URL.createObjectURL(new Blob([u],{type:'video/mp4'}));}catch(e){console.error(e)}
+
+const HINTS={
+  mp4:'El archivo poster-animado.mp4 tal como se entrega.',
+  live:'La capa JavaScript transparente dibujada sobre el póster: el mismo código que generó el video.',
+  original:'El póster sin animar, para comparar.',
+  wipe:'Arrastrá la línea: a la izquierda el original, a la derecha la versión animada.',
+  diff:'Negro = idéntico al original. Solo deberían aparecer las zonas animadas.',
+  overlay:'Lo que se superpone al papel en realidad aumentada. El damero indica transparencia.'
+};
+let mode='mp4', playing=true, t=0, last=performance.now(), wipeX=.5, ready=false;
+
+// Línea de tiempo por zona (desde configuracion.json)
+const ZCOL=['#5a8287','#8fb5b4','#9aa7a9','#57767c','#f53b00','#fc9045','#7cae5c'];
+const NAMES={"titulo-ecualizador":"Título","mediciones-tiempo-real":"Mediciones","recorrido-punteado":"Recorrido","mapa-brujula":"Brújula","rutas-pin":"Rutas","reportes":"Reportes","app-mapa-calor":"App"};
+const lanes=$('lanes'), heads=[];
+CONFIG.zonas.forEach((z,i)=>{
+  const lab=document.createElement('span'); lab.textContent=NAMES[z.id]||z.id;
+  const bar=document.createElement('div'); bar.className='bar';
+  const spans=z.activacion.tramos?z.activacion.tramos.map(s=>[s.inicio,s.fin]):[[z.activacion.inicio,z.activacion.fin]];
+  spans.forEach(([a,b])=>{const s=document.createElement('i');s.style.left=a/DUR*100+'%';s.style.width=(b-a)/DUR*100+'%';s.style.background=ZCOL[i];bar.appendChild(s);});
+  const ph=document.createElement('b'); ph.className='ph'; bar.appendChild(ph); heads.push(ph);
+  lanes.append(lab,bar);
+});
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));
+  $('hint').textContent=HINTS[m];
+  vid.style.visibility = m==='mp4' ? 'visible':'hidden';
+  cv.style.visibility = (m==='mp4'||m==='original') ? 'hidden':'visible';
+  orig.style.visibility = (m==='overlay') ? 'hidden':'visible';
+  frame.classList.toggle('checker', m==='overlay');
+  wipe.hidden = m!=='wipe';
+  if(m==='mp4'){ vid.currentTime=t; if(playing) vid.play().catch(()=>{}); } else vid.pause();
+  draw();
+}
+document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+function draw(){
+  if(!ready) return;
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalCompositeOperation='source-over'; ctx.clearRect(0,0,W,H);
+  if(mode==='live'||mode==='wipe'){
+    ctx.drawImage(orig,0,0); ZonarAnim.render(ctx,t);
+    if(mode==='wipe'){ ctx.save(); ctx.beginPath(); ctx.rect(0,0,W*wipeX,H); ctx.clip(); ctx.drawImage(orig,0,0); ctx.restore(); }
+  } else if(mode==='diff'){
+    ctx.drawImage(orig,0,0); ZonarAnim.render(ctx,t);
+    ctx.globalCompositeOperation='difference'; ctx.drawImage(orig,0,0); ctx.globalCompositeOperation='source-over';
+  } else if(mode==='overlay'){ ZonarAnim.render(ctx,t); }
+  drawGuides();
+  const s=t.toFixed(2).replace('.',',');
+  $('time').firstChild.nodeValue=s+' '; $('scrub').value=t;
+  heads.forEach(h=>h.style.left=(t/DUR*100)+'%');
+}
+function drawGuides(){
+  gctx.clearRect(0,0,W,H);
+  if($('showGrid').checked){
+    gctx.strokeStyle='rgba(245,59,0,.55)'; gctx.lineWidth=1.5;
+    for(let i=1;i<10;i++){ gctx.beginPath(); gctx.moveTo(W*i/10,0); gctx.lineTo(W*i/10,H); gctx.moveTo(0,H*i/10); gctx.lineTo(W,H*i/10); gctx.stroke(); }
+  }
+  if($('showZones').checked){
+    gctx.font='600 20px Inter, Arial, sans-serif';
+    CONFIG.zonas.forEach((z,i)=>z.rects.forEach(r=>{
+      gctx.strokeStyle=ZCOL[i]; gctx.lineWidth=3; gctx.setLineDash([10,6]);
+      gctx.strokeRect(r.x*W,r.y*H,r.w*W,r.h*H); gctx.setLineDash([]);
+      gctx.fillStyle=ZCOL[i]; gctx.fillText(NAMES[z.id], r.x*W+6, r.y*H+22);
+    }));
+  }
+}
+['showGrid','showZones'].forEach(id=>$(id).onchange=draw);
+
+function setPlaying(p){
+  playing=p; $('play').setAttribute('aria-label',p?'Pausar':'Reproducir');
+  $('icon').innerHTML = p ? '<rect x="4" y="3" width="4" height="14" rx="1"/><rect x="12" y="3" width="4" height="14" rx="1"/>' : '<path d="M5 3.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 5 3.5z"/>';
+  if(mode==='mp4'){ p ? vid.play().catch(()=>{}) : vid.pause(); }
+  last=performance.now();
+}
+$('play').onclick=()=>{ if(!playing && t>=DUR-0.02) t=0, vid.currentTime=0; setPlaying(!playing); };
+$('loop').onchange=e=>vid.loop=e.target.checked;
+$('scrub').oninput=e=>{ t=+e.target.value; vid.currentTime=t; setPlaying(false); draw(); };
+vid.addEventListener('ended',()=>{ if(mode==='mp4'){ t=DUR; setPlaying(false); draw(); } });
+
+function tick(now){
+  if(playing){
+    if(mode==='mp4' && !vid.paused) t=vid.currentTime;
+    else if(mode!=='mp4'){
+      t+= (now-last)/1000;
+      if(t>=DUR){ if($('loop').checked) t%=DUR; else { t=DUR-0.001; setPlaying(false); } }
+    }
+  }
+  last=now; draw(); requestAnimationFrame(tick);
+}
+// Arrastre del comparador
+let drag=false;
+const moveWipe=e=>{const r=frame.getBoundingClientRect(); wipeX=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)); wipeLine.style.left=wipeX*100+'%'; draw();};
+wipe.addEventListener('pointerdown',e=>{drag=true;wipe.setPointerCapture(e.pointerId);moveWipe(e)});
+wipe.addEventListener('pointermove',e=>drag&&moveWipe(e));
+wipe.addEventListener('pointerup',()=>drag=false);
+document.addEventListener('keydown',e=>{ if(e.code==='Space' && e.target.tagName!=='BUTTON'){ e.preventDefault(); $('play').click(); } });
+
+Promise.all([ZonarAnim.load(), orig.decode()]).then(()=>{ ready=true; setMode('mp4'); requestAnimationFrame(tick); });
+</script>
+</body>
+</html>

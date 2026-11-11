@@ -1,0 +1,39 @@
+# SITIO_DOMINIO:
+#   - "museos.ejemplo.edu.ar" → Caddy obtiene y renueva el certificado HTTPS solo
+#     (el dominio debe apuntar a este servidor y los puertos 80/443 estar abiertos).
+#   - ":80" → sólo HTTP, para usar detrás de otro proxy que ya termina HTTPS.
+{$SITIO_DOMINIO::80} {
+	root * /srv
+	encode zstd gzip
+
+	header {
+		Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# JS/CSS con hash en el nombre: caché larga.
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	# Recursos de pósters: la app los pide con ?v=<hash>, así que un cambio de archivo cambia la URL.
+	@posters path /posters/*
+	header @posters Cache-Control "public, max-age=86400"
+	@mind path *.mind
+	header @mind Content-Type "application/octet-stream"
+
+	# Archivos reales se sirven tal cual (con soporte Range, que Safari exige para video).
+	# Cualquier otra ruta (/p/zonar, /recursos…) es la SPA: index.html sin caché.
+	@spa {
+		not path /assets/* /posters/*
+		not file
+	}
+	handle @spa {
+		header Cache-Control "no-cache"
+		rewrite * /index.html
+		file_server
+	}
+
+	file_server
+}

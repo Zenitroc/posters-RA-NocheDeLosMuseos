@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZonAR · capa AR transparente</title>
+<style>
+:root{color-scheme:light dark}
+html,body{margin:0;height:100%;background:repeating-conic-gradient(#e3e8e8 0 25%,#f7f9f9 0 50%) 0 0/24px 24px}
+canvas{display:block;height:100vh;max-width:100%;margin:0 auto;aspect-ratio:1131/1600;object-fit:contain}
+</style></head>
+<body>
+<canvas id="capa" width="1131" height="1600"></canvas>
+<script src="zonar-overlay.js"></script>
+<script>
+/* Capa transparente: solo los elementos animados, en coordenadas del póster.
+   Integración WebAR (MindAR + Three.js), por ejemplo:
+     const tex = new THREE.CanvasTexture(canvas);  tex.colorSpace = THREE.SRGBColorSpace;
+     const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1600/1131),
+                   new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+     anchor.group.add(plane);
+     // en cada frame: ctx.clearRect(...); ZonarAnim.render(ctx, segundos); tex.needsUpdate = true;
+   En A-Frame: material="src: #capa; transparent: true" y marcar la textura needsUpdate en tick(). */
+const c = document.getElementById('capa'), ctx = c.getContext('2d');
+ZonarAnim.load().then(() => {
+  const t0 = performance.now();
+  (function loop(now){ ctx.clearRect(0,0,c.width,c.height); ZonarAnim.render(ctx,(now-t0)/1000); requestAnimationFrame(loop); })(t0);
+});
+</script>
+</body></html>

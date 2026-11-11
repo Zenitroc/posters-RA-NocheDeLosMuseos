@@ -1,0 +1,24 @@
+{
+  "nombre": "ZonAR",
+  "subtitulo": "Hacé visible el ruido",
+  "descripcion": "Proyecto final de UTN FRBA que visualiza los niveles de ruido urbano: mediciones en tiempo real, mapas de contaminación sonora, recomendaciones de rutas silenciosas y generación de reportes.",
+  "equipo": ["Abril Caruso", "Micaela Gobbi", "Gabriel Montenegro", "Mora Hidalgo"],
+  "orden": 1,
+  "activo": true,
+  "demo": false,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "ZonarAnim",
+      "ancho": 1131,
+      "alto": 1600,
+      "fps": 30,
+      "ladoMaximo": 1024
+    }
+  }
+}

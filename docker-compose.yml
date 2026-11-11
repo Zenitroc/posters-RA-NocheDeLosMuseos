@@ -1,0 +1,22 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        # URL pública definitiva (va dentro de los QR). Ej.: https://museos.ejemplo.edu.ar
+        VITE_SITIO_URL: ${VITE_SITIO_URL:-}
+    environment:
+      # Dominio para HTTPS automático, o ":80" si hay otro proxy delante.
+      SITIO_DOMINIO: ${SITIO_DOMINIO:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

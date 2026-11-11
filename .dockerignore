@@ -1,0 +1,10 @@
+node_modules
+dist
+salida
+.git
+.env
+.env.*
+!.env.example
+*.local
+coverage
+*.zip

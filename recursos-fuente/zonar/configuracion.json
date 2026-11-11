@@ -1,0 +1,209 @@
+{
+  "proyecto": "ZonAR — Hacé visible el ruido",
+  "institucion": "UTN.BA · Departamento de Ingeniería en Sistemas de Información · Proyecto Final 2025",
+  "poster": {
+    "archivo": "original/poster.jpg",
+    "ancho_px": 1131,
+    "alto_px": 1600,
+    "relacion_aspecto": 0.706875,
+    "ancho_plano_ar": 1.0,
+    "alto_plano_ar": 1.414677
+  },
+  "duracion_s": 10.0,
+  "fps": 30,
+  "repeticion": {
+    "loop": true,
+    "loop_continuo": true,
+    "primer_y_ultimo_fotograma_identicos_al_poster": true,
+    "inicio_reposo_s": 0.4,
+    "fin_reposo_s": 9.7
+  },
+  "recursos": {
+    "video": {
+      "archivo": "output/poster-animado.mp4",
+      "codec": "H.264 High@4.1",
+      "pix_fmt": "yuv420p",
+      "ancho_px": 1132,
+      "alto_px": 1600,
+      "audio": false,
+      "faststart": true,
+      "nota": "H.264 4:2:0 exige ancho par: se escaló 1131→1132 px (0,09 % horizontal). Mapear el video al plano completo del póster."
+    },
+    "capa_transparente": {
+      "archivo": "output/zonar-overlay.js",
+      "tipo": "Canvas 2D programático con fondo transparente (sin video alfa)",
+      "api": "await ZonarAnim.load(); ZonarAnim.render(ctx2d, tiempoSegundos)",
+      "canvas_px": [
+        1131,
+        1600
+      ],
+      "nota": "Dibuja solo los elementos animados. Las barras del título, el interior de los íconos de mediciones y del pin se repintan con su color de fondo mientras se animan."
+    },
+    "vista_previa": "output/preview.html",
+    "demo_capa": "output/capa-ar.html"
+  },
+  "formatos_disponibles": [
+    "mp4",
+    "canvas-js-transparente"
+  ],
+  "coordenadas": "Normalizadas 0–1, origen arriba a la izquierda del póster",
+  "zonas": [
+    {
+      "id": "titulo-ecualizador",
+      "elemento": "Barras de onda a ambos lados de «ZonAR»",
+      "funcion": "Identidad sonora del proyecto",
+      "animacion": "Barras que oscilan como un vúmetro; la onda se propaga hacia afuera del logotipo",
+      "intensidad": "media (±32 % de altura)",
+      "activacion": {
+        "inicio": 0.4,
+        "fin": 9.7
+      },
+      "rects": [
+        {
+          "x": 0.0813,
+          "y": 0.0612,
+          "w": 0.1813,
+          "h": 0.1437
+        },
+        {
+          "x": 0.7374,
+          "y": 0.0612,
+          "w": 0.1804,
+          "h": 0.1437
+        }
+      ]
+    },
+    {
+      "id": "mediciones-tiempo-real",
+      "elemento": "Ícono circular de forma de onda",
+      "funcion": "Medición de ruido en vivo",
+      "animacion": "Forma de onda interna viva + pulsos concéntricos que se expanden",
+      "intensidad": "media",
+      "activacion": {
+        "inicio": 0.4,
+        "fin": 9.7
+      },
+      "rects": [
+        {
+          "x": 0.1777,
+          "y": 0.2288,
+          "w": 0.1919,
+          "h": 0.135
+        }
+      ]
+    },
+    {
+      "id": "recorrido-punteado",
+      "elemento": "Línea punteada que conecta las cuatro funciones",
+      "funcion": "Flujo narrativo entre funciones",
+      "animacion": "Señal luminosa que recorre los guiones; cada tramo toma el color del ícono al que llega",
+      "intensidad": "media",
+      "activacion": {
+        "tramos": [
+          {
+            "de": "mediciones",
+            "a": "mapa",
+            "inicio": 1.0,
+            "fin": 2.4
+          },
+          {
+            "de": "mapa",
+            "a": "rutas",
+            "inicio": 2.9,
+            "fin": 4.3
+          },
+          {
+            "de": "rutas",
+            "a": "reportes",
+            "inicio": 4.7,
+            "fin": 6.1
+          }
+        ]
+      },
+      "rects": [
+        {
+          "x": 0.0354,
+          "y": 0.275,
+          "w": 0.5747,
+          "h": 0.4125
+        }
+      ]
+    },
+    {
+      "id": "mapa-brujula",
+      "elemento": "Ícono de brújula",
+      "funcion": "Mapa de niveles de ruido",
+      "animacion": "La aguja gira una vuelta al recibir la señal y luego oscila buscando orientación",
+      "intensidad": "media",
+      "activacion": {
+        "inicio": 2.4,
+        "fin": 9.5
+      },
+      "rects": [
+        {
+          "x": 0.3846,
+          "y": 0.365,
+          "w": 0.1627,
+          "h": 0.1156
+        }
+      ]
+    },
+    {
+      "id": "rutas-pin",
+      "elemento": "Ícono de pin de ubicación",
+      "funcion": "Recomendaciones de rutas silenciosas",
+      "animacion": "Rebote del pin con pulsos de ubicación",
+      "intensidad": "media",
+      "activacion": {
+        "inicio": 4.3,
+        "fin": 9.1
+      },
+      "rects": [
+        {
+          "x": 0.0681,
+          "y": 0.4956,
+          "w": 0.1786,
+          "h": 0.1263
+        }
+      ]
+    },
+    {
+      "id": "reportes",
+      "elemento": "Ícono de documento con gráfico",
+      "funcion": "Generación de reportes",
+      "animacion": "Latido del ícono, barrido de luz sobre el documento y ondas suaves",
+      "intensidad": "baja",
+      "activacion": {
+        "inicio": 6.1,
+        "fin": 8.6
+      },
+      "rects": [
+        {
+          "x": 0.2714,
+          "y": 0.6669,
+          "w": 0.1706,
+          "h": 0.12
+        }
+      ]
+    },
+    {
+      "id": "app-mapa-calor",
+      "elemento": "Pantalla del teléfono: mapa de calor, ruta, pin y botón de medición",
+      "funcion": "Demostración de la app",
+      "animacion": "Manchas de ruido que respiran con ondas, señal que recorre la ruta sugerida, pulso del pin y sonar del botón de medición",
+      "intensidad": "baja-media",
+      "activacion": {
+        "inicio": 0.4,
+        "fin": 9.7
+      },
+      "rects": [
+        {
+          "x": 0.6755,
+          "y": 0.3725,
+          "w": 0.244,
+          "h": 0.2838
+        }
+      ]
+    }
+  ]
+}
