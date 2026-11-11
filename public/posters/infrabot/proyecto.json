@@ -1,0 +1,27 @@
+{
+  "nombre": "INFRABOT",
+  "subtitulo": "Gestión inteligente de infraestructura escolar",
+  "descripcion": "Proyecto final de UTN FRBA, en colaboración con San Martín comunidad activa, que detecta problemas de infraestructura escolar, genera reclamos y coordina su resolución.",
+  "equipo": [
+    "Gerardo Muñoz",
+    "Adriel Aran",
+    "Ignacio Bisio",
+    "Joaquin Rodriguez",
+    "Matias Orieta"
+  ],
+  "orden": 4,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "InfrabotAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

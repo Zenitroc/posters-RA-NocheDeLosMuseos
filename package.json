@@ -52,6 +52,7 @@
     "image-size": "^2.0.4",
     "jsdom": "^29.1.1",
     "jsqr": "^1.4.0",
+    "mp4-muxer": "^5.2.2",
     "playwright": "^1.64.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.1",

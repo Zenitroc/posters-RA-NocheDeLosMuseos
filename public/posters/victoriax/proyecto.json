@@ -1,0 +1,27 @@
+{
+  "nombre": "VictoriaX",
+  "subtitulo": "Descubrí la ingeniería, dominá la simulación",
+  "descripcion": "Proyecto final de UTN FRBA con propuesta pedagógica dual: aprendizaje activo, acompañamiento docente y resoluciones validadas.",
+  "equipo": [
+    "M. Daniela Mereles",
+    "Natalia Vargas",
+    "Ailen Da Ruos",
+    "Aldo Callisaya",
+    "Yamila Soto"
+  ],
+  "orden": 5,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "VictoriaXAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

@@ -17,6 +17,17 @@ La animación de cada póster puede ser:
 El proyecto **ZonAR** usa sus recursos definitivos: póster original (1131×1600), capa
 `ZonarAnim` y MP4 de respaldo. El código fuente de su animación está en `recursos-fuente/zonar/`.
 
+**AgroLink, Arbiter, INFRABOT y VictoriaX** también tienen capa Canvas + MP4 de respaldo. Sus
+animaciones están en `recursos-fuente/<slug>/animacion.js` (utilidades comunes en
+`recursos-fuente/_comun/efectos.js`) y los pósters originales en `recursos-fuente/<slug>/original/`.
+Para regenerar tras ajustar una animación:
+
+```bash
+node recursos-fuente/construir.mjs capa  agrolink          # → public/posters/agrolink/capa.js
+node recursos-fuente/construir.mjs video agrolink          # → animacion.mp4 (H.264 vía WebCodecs en Chromium)
+node recursos-fuente/construir.mjs stills agrolink 2.2 5   # PNG de prueba en salida/stills/
+```
+
 ---
 
 ## Rutas del sitio

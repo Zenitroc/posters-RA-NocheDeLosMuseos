@@ -1,0 +1,27 @@
+{
+  "nombre": "Arbiter",
+  "subtitulo": "Siniestros de seguros con IA",
+  "descripcion": "Proyecto final de UTN FRBA que optimiza la gestión del ciclo de vida de siniestros para compañías de seguros, con clasificación asistida por inteligencia artificial.",
+  "equipo": [
+    "Aylén Sandoval",
+    "Federico Moccia",
+    "Florencia Larocca",
+    "Martina Soteras",
+    "Valentina Alberio"
+  ],
+  "orden": 3,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "ArbiterAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

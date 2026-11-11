@@ -1,0 +1,27 @@
+{
+  "nombre": "AgroLink",
+  "subtitulo": "Toda la información de tu flota en un solo lugar",
+  "descripcion": "Proyecto final de UTN FRBA que unifica los datos IoT de una flota de camiones, con gestión de mantenimiento y monitoreo de combustible.",
+  "equipo": [
+    "Nazareno Lopez Zmijak",
+    "Milena Garro",
+    "Francisco Ariel Romero",
+    "Emiliano Fernandez Boleda",
+    "Guido Siverio"
+  ],
+  "orden": 2,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "AgroLinkAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}
