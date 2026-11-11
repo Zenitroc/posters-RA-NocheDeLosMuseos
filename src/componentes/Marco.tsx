@@ -20,6 +20,9 @@ export function Marco() {
               <small>Noche de los Museos · UTN BA</small>
             </span>
           </Link>
+          <a className="logo-utn" href="https://www.frba.utn.edu.ar" target="_blank" rel="noopener noreferrer">
+            <img src="/logo-utnba.png" alt="UTN BA — Facultad Regional Buenos Aires" width="165" height="52" />
+          </a>
           <nav className="cabecera__nav" aria-label="Principal">
             <Link to="/proyectos">Proyectos</Link>
             <Link to="/" className="boton boton--chico boton--primario">
@@ -33,7 +36,10 @@ export function Marco() {
       </main>
       <footer className="pie">
         <div className="contenedor">
-          <span>{TEXTOS.institucion}</span>
+          <span className="pie__inst">
+            <img className="logo-utn__pie" src="/logo-utnba.png" alt="" width="99" height="31" />
+            {TEXTOS.institucion}
+          </span>
           <span>Sin apps ni registros: todo ocurre en tu navegador.</span>
         </div>
       </footer>

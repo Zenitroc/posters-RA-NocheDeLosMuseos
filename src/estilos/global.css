@@ -1549,3 +1549,33 @@ li[data-estado='listo'] .carga-pasos__icono {
     overflow: auto;
   }
 }
+
+/* Logo UTN BA (recoloreado a la paleta del sitio: --texto y --acento) */
+.logo-utn {
+  display: inline-flex;
+  margin-left: 0.25rem;
+  flex: none;
+}
+
+.logo-utn img {
+  height: 30px;
+  width: auto;
+}
+
+.pie__inst {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-utn__pie {
+  height: 22px;
+  width: auto;
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .logo-utn img {
+    height: 22px;
+  }
+}
