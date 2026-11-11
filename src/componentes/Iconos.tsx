@@ -142,13 +142,13 @@ export function Logo(props: Props) {
     <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false" {...props}>
       <defs>
         <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#3fe3c6" />
-          <stop offset="1" stopColor="#ffb547" />
+          <stop offset="0" stopColor="#e4163b" />
+          <stop offset="1" stopColor="#ffffff" />
         </linearGradient>
       </defs>
       <rect x="6" y="3" width="17" height="24" rx="3" fill="none" stroke="url(#logo-g)" strokeWidth="2.4" />
-      <path d="M10 18v-3M13.5 20v-7M17 18v-3" stroke="#eef3fb" strokeWidth="2.2" strokeLinecap="round" />
-      <path d="M26 10.5a7 7 0 0 1 0 9M28.6 8a10.5 10.5 0 0 1 0 14" fill="none" stroke="#3fe3c6" strokeWidth="2" strokeLinecap="round" />
+      <path d="M10 18v-3M13.5 20v-7M17 18v-3" stroke="#f7f7f8" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M26 10.5a7 7 0 0 1 0 9M28.6 8a10.5 10.5 0 0 1 0 14" fill="none" stroke="#e4163b" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

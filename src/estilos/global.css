@@ -1,22 +1,22 @@
 /* ==========================================================================
    Proyectos que cobran vida — sistema visual
-   Noche (azul profundo) + acento cian "señal" + ámbar cálido.
+   Negro + blanco + rojo institucional UTN BA (#b70124), a juego con el logo.
    ========================================================================== */
 
 :root {
-  --fondo: #060e1c;
-  --fondo-2: #0b1730;
-  --superficie: #0f1f3a;
-  --superficie-2: #15294a;
+  --fondo: #0a0a0b;
+  --fondo-2: #141012;
+  --superficie: #1a1a1d;
+  --superficie-2: #242428;
   --borde: rgb(255 255 255 / 0.09);
   --borde-fuerte: rgb(255 255 255 / 0.18);
-  --texto: #eef3fb;
-  --texto-suave: #a7b6cd;
-  --texto-tenue: #74849e;
-  --acento: #3fe3c6;
-  --acento-fuerte: #12c9a8;
-  --acento-texto: #04261f;
-  --calido: #ffb547;
+  --texto: #f7f7f8;
+  --texto-suave: #b9b9c0;
+  --texto-tenue: #85858f;
+  --acento: #e4163b;
+  --acento-fuerte: #b70124;
+  --acento-texto: #ffffff;
+  --calido: #ffffff;
   --peligro: #ff7a7a;
   --exito: #5be38e;
 
@@ -54,8 +54,8 @@ body {
   line-height: 1.55;
   color: var(--texto);
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgb(63 227 198 / 0.12), transparent 60%),
-    radial-gradient(900px 500px at -10% 20%, rgb(80 120 255 / 0.1), transparent 60%),
+    radial-gradient(1200px 600px at 85% -10%, rgb(228 22 59 / 0.12), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgb(255 255 255 / 0.05), transparent 60%),
     linear-gradient(180deg, var(--fondo) 0%, var(--fondo-2) 100%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
@@ -144,7 +144,7 @@ button {
   z-index: 20;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  background: rgb(6 14 28 / 0.72);
+  background: rgb(10 10 11 / 0.72);
   border-bottom: 1px solid var(--borde);
   padding-top: var(--zona-segura-sup);
 }
@@ -264,7 +264,7 @@ main {
   --b-fondo: var(--acento);
   --b-texto: var(--acento-texto);
   --b-borde: transparent;
-  box-shadow: 0 10px 30px -10px rgb(63 227 198 / 0.7);
+  box-shadow: 0 10px 30px -10px rgb(228 22 59 / 0.7);
 }
 
 .boton--primario:hover {
@@ -389,14 +389,14 @@ main {
   height: 8px;
   border-radius: 50%;
   background: var(--acento);
-  box-shadow: 0 0 0 0 rgb(63 227 198 / 0.6);
+  box-shadow: 0 0 0 0 rgb(228 22 59 / 0.6);
   animation: latido 2.4s ease-out infinite;
 }
 
 @keyframes latido {
-  0% { box-shadow: 0 0 0 0 rgb(63 227 198 / 0.55); }
-  70% { box-shadow: 0 0 0 12px rgb(63 227 198 / 0); }
-  100% { box-shadow: 0 0 0 0 rgb(63 227 198 / 0); }
+  0% { box-shadow: 0 0 0 0 rgb(228 22 59 / 0.55); }
+  70% { box-shadow: 0 0 0 12px rgb(228 22 59 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(228 22 59 / 0); }
 }
 
 .heroe h1 {
@@ -407,7 +407,7 @@ main {
 
 .heroe h1 em {
   font-style: normal;
-  background: linear-gradient(100deg, var(--acento) 10%, #8af5e3 50%, var(--calido) 95%);
+  background: linear-gradient(100deg, var(--acento) 10%, #ff6b86 50%, var(--calido) 95%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -436,7 +436,7 @@ main {
   align-items: flex-start;
   padding: 1rem 1.1rem;
   border-radius: var(--radio);
-  background: rgb(15 31 58 / 0.6);
+  background: rgb(26 26 29 / 0.6);
   border: 1px solid var(--borde);
 }
 
@@ -447,7 +447,7 @@ main {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  background: rgb(63 227 198 / 0.12);
+  background: rgb(228 22 59 / 0.12);
   color: var(--acento);
 }
 
@@ -513,8 +513,8 @@ main {
 
 .tarjeta:hover {
   transform: translateY(-4px);
-  border-color: rgb(63 227 198 / 0.45);
-  box-shadow: var(--sombra), 0 0 0 1px rgb(63 227 198 / 0.15);
+  border-color: rgb(228 22 59 / 0.45);
+  box-shadow: var(--sombra), 0 0 0 1px rgb(228 22 59 / 0.15);
 }
 
 .tarjeta__imagen {
@@ -607,7 +607,7 @@ main {
   overflow: hidden;
   background: var(--superficie-2);
   border: 1px solid var(--borde-fuerte);
-  box-shadow: 0 18px 40px -18px rgb(63 227 198 / 0.45);
+  box-shadow: 0 18px 40px -18px rgb(228 22 59 / 0.45);
 }
 
 .proyecto__poster img {
@@ -649,7 +649,7 @@ main {
 .instrucciones {
   padding: 1.1rem 1.15rem;
   border-radius: var(--radio);
-  background: rgb(15 31 58 / 0.6);
+  background: rgb(26 26 29 / 0.6);
   border: 1px solid var(--borde);
 }
 
@@ -684,7 +684,7 @@ main {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: rgb(63 227 198 / 0.15);
+  background: rgb(228 22 59 / 0.15);
   color: var(--acento);
   font-weight: 700;
   font-size: 0.85rem;
@@ -972,14 +972,14 @@ main {
   display: grid;
   place-items: center;
   padding: calc(1rem + var(--zona-segura-sup)) 1rem calc(1rem + var(--zona-segura-inf));
-  background: rgb(6 14 28 / 0.86);
+  background: rgb(10 10 11 / 0.86);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   overflow-y: auto;
 }
 
 .ra-panel--translucido {
-  background: rgb(6 14 28 / 0.55);
+  background: rgb(10 10 11 / 0.55);
 }
 
 .ra-tarjeta {
@@ -1550,7 +1550,7 @@ li[data-estado='listo'] .carga-pasos__icono {
   }
 }
 
-/* Logo UTN BA (recoloreado a la paleta del sitio: --texto y --acento) */
+/* Logo UTN BA (original, sin modificar colores) */
 .logo-utn {
   display: inline-flex;
   margin-left: 0.25rem;
@@ -1558,7 +1558,7 @@ li[data-estado='listo'] .carga-pasos__icono {
 }
 
 .logo-utn img {
-  height: 30px;
+  height: 38px;
   width: auto;
 }
 
@@ -1571,7 +1571,6 @@ li[data-estado='listo'] .carga-pasos__icono {
 .logo-utn__pie {
   height: 22px;
   width: auto;
-  opacity: 0.85;
 }
 
 @media (max-width: 640px) {
