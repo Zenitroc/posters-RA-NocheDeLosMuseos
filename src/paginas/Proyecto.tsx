@@ -42,7 +42,7 @@ export default function PaginaProyecto() {
 
   return (
     <article className="proyecto contenedor">
-      <Link to="/" className="enlace-volver">
+      <Link to="/proyectos" className="enlace-volver">
         <IconoVolver /> Todos los proyectos
       </Link>
 

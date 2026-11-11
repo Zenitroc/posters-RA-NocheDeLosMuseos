@@ -49,12 +49,19 @@ export interface ProgresoCarga {
 export interface OpcionesSesion {
   contenedor: HTMLElement;
   targetUrl: string;
-  /** Animación YA CARGADA (video o capa Canvas). Puede ser una promesa: se prepara en paralelo con la cámara. */
-  animacion: Animacion | Promise<Animacion>;
+  /**
+   * Modo "un solo póster": animación YA CARGADA (video o capa Canvas), que corresponde al objetivo 0 del
+   * .mind. Puede ser una promesa: se prepara en paralelo con la cámara.
+   * Modo escáner (varios pósters en un mismo .mind): se omite y cada animación se entrega con
+   * `entregarAnimacion()` cuando `alDetectar(indice)` avisa que ese póster apareció.
+   */
+  animacion?: Animacion | Promise<Animacion>;
   reproduccion: ConfigReproduccion;
   alProgreso?(progreso: ProgresoCarga): void;
-  alDetectar?(): void;
-  alPerder?(): void;
+  /** Un póster (índice dentro del .mind) pasó a estar a la vista. */
+  alDetectar?(indice: number): void;
+  /** El póster que estaba a la vista se perdió. */
+  alPerder?(indice: number): void;
   /** La cámara se cortó durante la sesión (otra app la tomó, se bloqueó el teléfono…). */
   alInterrupcion?(error: ErrorRA): void;
   alAdvertencia?(mensaje: string): void;
@@ -64,6 +71,16 @@ export interface OpcionesSesion {
 let sesionActiva: SesionRA | null = null;
 
 const MATRIZ_INVISIBLE = new Matrix4().set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+
+/** Un póster del .mind con su animación ya montada en la escena. */
+interface Objetivo {
+  animacion: Animacion;
+  ancla: Group;
+  material: MeshBasicMaterial | ShaderMaterial;
+  postMatriz: Matrix4;
+  altoRelativo: number;
+  opacidad: number;
+}
 
 export class SesionRA {
   private readonly op: OpcionesSesion;
@@ -77,10 +94,13 @@ export class SesionRA {
   private controller?: Controller;
   private renderer?: WebGLRenderer;
   private camara3d?: PerspectiveCamera;
-  private ancla?: Group;
+  private readonly objetivos = new Map<number, Objetivo>();
+  private dimensiones: [number, number][] = [];
+  /** Animaciones entregadas antes de que la escena esté montada. */
+  private readonly pendientes = new Map<number, { animacion: Animacion; reproduccion: ConfigReproduccion }>();
   private animacion?: Animacion;
-  private material?: MeshBasicMaterial | ShaderMaterial;
-  private visible = false;
+  /** Índice del póster actualmente a la vista (null: ninguno). */
+  private indiceVisible: number | null = null;
   private finDeCiclo?: () => void;
 
   constructor(opciones: OpcionesSesion) {
@@ -129,11 +149,9 @@ export class SesionRA {
       this.abrirCamara().then(() => this.actualizarProgreso({ camara: true })),
       Promise.resolve(this.op.animacion).then((animacion) => {
         if (this.detenida) throw new ErrorRA('cancelado');
-        this.animacion = animacion;
-        // En iOS el <video> debe estar en el DOM para que se decodifiquen cuadros para la textura.
-        if (animacion.elemento) {
-          animacion.elemento.classList.add('ra-fuente');
-          this.op.contenedor.appendChild(animacion.elemento);
+        if (animacion) {
+          this.animacion = animacion;
+          this.colocarElemento(animacion);
         }
         this.actualizarProgreso({ animacion: true });
       }),
@@ -219,8 +237,7 @@ export class SesionRA {
 
   private montarEscena(ControllerClase: typeof Controller, bufferTarget: ArrayBuffer) {
     const camaraVideo = this.camaraVideo!;
-    const { contenedor, reproduccion } = this.op;
-    const animacion = this.animacion!;
+    const { contenedor } = this.op;
 
     const controller = new ControllerClase({
       inputWidth: camaraVideo.videoWidth,
@@ -237,7 +254,7 @@ export class SesionRA {
       throw new ErrorRA('target-invalido', e);
     }
     if (!dimensiones?.length) throw new ErrorRA('target-invalido');
-    const [anchoTarget, altoTarget] = dimensiones[0];
+    this.dimensiones = dimensiones;
 
     let renderer: WebGLRenderer;
     try {
@@ -254,40 +271,11 @@ export class SesionRA {
 
     const escena = new Scene();
     this.camara3d = new PerspectiveCamera();
-    const ancla = new Group();
-    ancla.matrixAutoUpdate = false;
-    ancla.visible = false;
-    escena.add(ancla);
-    this.ancla = ancla;
     this.escena = escena;
 
-    // Igual que MindAR: el ancla queda centrada en la imagen y 1 unidad = ancho de la imagen.
-    this.postMatriz = new Matrix4().compose(
-      new Vector3(anchoTarget / 2, altoTarget / 2, 0),
-      new Quaternion(),
-      new Vector3(anchoTarget, anchoTarget, anchoTarget),
-    );
-
-    this.altoRelativoTarget = altoTarget / anchoTarget;
-    const ajuste = calcularAjuste(anchoTarget / altoTarget, animacion.proporcion, reproduccion);
-    if (ajuste.advertencia) this.op.alAdvertencia?.(ajuste.advertencia);
-
-    const textura = animacion.crearTextura();
-    textura.repeat.set(ajuste.textura.repetirX, ajuste.textura.repetirY);
-    textura.offset.set(ajuste.textura.desplazarX, ajuste.textura.desplazarY);
-
-    const material = animacion.transparente ? crearMaterialTransparente(textura) : crearMaterialOpaco(textura);
-    this.material = material;
-    const geometria = new PlaneGeometry(ajuste.plano.ancho, ajuste.plano.alto);
-    const plano = new Mesh(geometria, material);
-    plano.position.set(ajuste.posicion.x, ajuste.posicion.y, 0);
-    ancla.add(plano);
-
-    this.limpiezas.push(() => {
-      geometria.dispose();
-      material.dispose();
-      textura.dispose();
-    });
+    if (this.animacion) this.agregarObjetivo(0, this.animacion, this.op.reproduccion);
+    for (const [indice, { animacion, reproduccion }] of this.pendientes) this.agregarObjetivo(indice, animacion, reproduccion);
+    this.pendientes.clear();
 
     this.ajustarTamano();
     const alRedimensionar = () => this.ajustarTamano();
@@ -305,56 +293,127 @@ export class SesionRA {
   }
 
   private escena?: Scene;
-  private opacidad = 0;
-
-  private fijarOpacidad(valor: number) {
-    this.opacidad = valor;
-    const m = this.material;
-    if (m instanceof ShaderMaterial) m.uniforms.opacidad.value = valor;
-    else if (m) m.opacity = valor;
-  }
-  private altoRelativoTarget = 1;
-  private postMatriz = new Matrix4();
   private readonly matrizTemporal = new Matrix4();
   private ultimoCuadro = 0;
+
+  private colocarElemento(animacion: Animacion) {
+    // En iOS el <video> debe estar en el DOM para que se decodifiquen cuadros para la textura.
+    if (animacion.elemento) {
+      animacion.elemento.classList.add('ra-fuente');
+      this.op.contenedor.appendChild(animacion.elemento);
+    }
+  }
+
+  /**
+   * Modo escáner: entrega la animación (ya cargada) del póster `indice`. Puede llamarse en cualquier
+   * momento después de iniciar; la sesión es la dueña de la textura y la libera al detenerse, pero la
+   * animación en sí la libera quien la creó.
+   */
+  entregarAnimacion(indice: number, animacion: Animacion, reproduccion: ConfigReproduccion): void {
+    if (this.detenida || this.objetivos.has(indice) || this.pendientes.has(indice)) return;
+    this.colocarElemento(animacion);
+    if (this.escena) this.agregarObjetivo(indice, animacion, reproduccion);
+    else this.pendientes.set(indice, { animacion, reproduccion });
+  }
+
+  private agregarObjetivo(indice: number, animacion: Animacion, reproduccion: ConfigReproduccion) {
+    const escena = this.escena;
+    const dim = this.dimensiones[indice];
+    if (!escena || !dim) return;
+    const [anchoTarget, altoTarget] = dim;
+
+    const ancla = new Group();
+    ancla.matrixAutoUpdate = false;
+    ancla.visible = false;
+    escena.add(ancla);
+
+    // Igual que MindAR: el ancla queda centrada en la imagen y 1 unidad = ancho de la imagen.
+    const postMatriz = new Matrix4().compose(
+      new Vector3(anchoTarget / 2, altoTarget / 2, 0),
+      new Quaternion(),
+      new Vector3(anchoTarget, anchoTarget, anchoTarget),
+    );
+
+    const ajuste = calcularAjuste(anchoTarget / altoTarget, animacion.proporcion, reproduccion);
+    if (ajuste.advertencia) this.op.alAdvertencia?.(ajuste.advertencia);
+
+    const textura = animacion.crearTextura();
+    textura.repeat.set(ajuste.textura.repetirX, ajuste.textura.repetirY);
+    textura.offset.set(ajuste.textura.desplazarX, ajuste.textura.desplazarY);
+
+    const material = animacion.transparente ? crearMaterialTransparente(textura) : crearMaterialOpaco(textura);
+    const geometria = new PlaneGeometry(ajuste.plano.ancho, ajuste.plano.alto);
+    const plano = new Mesh(geometria, material);
+    plano.position.set(ajuste.posicion.x, ajuste.posicion.y, 0);
+    ancla.add(plano);
+
+    const objetivo: Objetivo = { animacion, ancla, material, postMatriz, altoRelativo: altoTarget / anchoTarget, opacidad: 0 };
+    this.objetivos.set(indice, objetivo);
+    this.fijarOpacidad(objetivo, 0);
+
+    this.limpiezas.push(() => {
+      escena.remove(ancla);
+      geometria.dispose();
+      material.dispose();
+      textura.dispose();
+    });
+  }
+
+  private fijarOpacidad(o: Objetivo, valor: number) {
+    o.opacidad = valor;
+    const m = o.material;
+    if (m instanceof ShaderMaterial) m.uniforms.opacidad.value = valor;
+    else m.opacity = valor;
+  }
 
   private alActualizar = (datos: DatosActualizacion) => {
     if (datos.type === 'processDone') {
       this.finDeCiclo?.();
       return;
     }
-    if (this.detenida || datos.type !== 'updateMatrix' || !this.ancla) return;
+    if (this.detenida || datos.type !== 'updateMatrix' || !this.escena) return;
 
+    const indice = datos.targetIndex;
+    const objetivo = this.objetivos.get(indice);
     const { worldMatrix } = datos;
     if (worldMatrix) {
-      this.matrizTemporal.fromArray(worldMatrix).multiply(this.postMatriz);
-      this.ancla.matrix.copy(this.matrizTemporal);
-      this.ancla.visible = true;
-      if (!this.visible) {
-        this.visible = true;
-        this.op.alDetectar?.();
+      if (objetivo) {
+        this.matrizTemporal.fromArray(worldMatrix).multiply(objetivo.postMatriz);
+        objetivo.ancla.matrix.copy(this.matrizTemporal);
+        objetivo.ancla.visible = true;
       }
-    } else {
-      this.ancla.matrix.copy(MATRIZ_INVISIBLE);
-      this.ancla.visible = false;
-      if (this.visible) {
-        this.visible = false;
-        this.fijarOpacidad(0);
-        this.op.alPerder?.();
+      if (this.indiceVisible !== indice) {
+        const anterior = this.indiceVisible;
+        this.indiceVisible = indice;
+        if (anterior !== null) this.ocultarObjetivo(anterior);
+        this.op.alDetectar?.(indice);
       }
+    } else if (this.indiceVisible === indice) {
+      this.indiceVisible = null;
+      this.ocultarObjetivo(indice);
+      this.op.alPerder?.(indice);
     }
   };
 
+  private ocultarObjetivo(indice: number) {
+    const o = this.objetivos.get(indice);
+    if (!o) return;
+    o.ancla.matrix.copy(MATRIZ_INVISIBLE);
+    o.ancla.visible = false;
+    this.fijarOpacidad(o, 0);
+  }
+
   private dibujar = (tiempo: number) => {
-    const { renderer, escena, camara3d, material } = this;
+    const { renderer, escena, camara3d } = this;
     if (!renderer || !escena || !camara3d) return;
     const dt = this.ultimoCuadro ? Math.min(0.1, (tiempo - this.ultimoCuadro) / 1000) : 0;
     this.ultimoCuadro = tiempo;
-    // Aparición suave al detectar el póster.
-    if (material && this.visible && this.opacidad < 1) {
-      this.fijarOpacidad(Math.min(1, this.opacidad + dt * 4));
+    for (const [indice, o] of this.objetivos) {
+      const visible = indice === this.indiceVisible;
+      // Aparición suave al detectar el póster.
+      if (visible && o.opacidad < 1) this.fijarOpacidad(o, Math.min(1, o.opacidad + dt * 4));
+      o.animacion.actualizar(tiempo, visible);
     }
-    this.animacion?.actualizar(tiempo, this.visible);
     renderer.render(escena, camara3d);
   };
 
@@ -412,11 +471,13 @@ export class SesionRA {
    * contenedor (sup-izq, sup-der, inf-der, inf-izq), o null si no está a la vista.
    */
   esquinasEnPantalla(): { x: number; y: number }[] | null {
-    const { ancla, camara3d } = this;
-    if (!ancla || !camara3d || !this.visible) return null;
+    const { camara3d } = this;
+    const o = this.indiceVisible === null ? undefined : this.objetivos.get(this.indiceVisible);
+    if (!o || !camara3d) return null;
+    const ancla = o.ancla;
     ancla.updateMatrixWorld(true);
     const { clientWidth: cw, clientHeight: ch } = this.op.contenedor;
-    const h = this.altoRelativoTarget / 2;
+    const h = o.altoRelativo / 2;
     return [
       [-0.5, h],
       [0.5, h],
@@ -480,7 +541,9 @@ export class SesionRA {
     }
     this.renderer = undefined;
     this.escena = undefined;
-    this.ancla = undefined;
+    this.objetivos.clear();
+    this.pendientes.clear();
+    this.indiceVisible = null;
   }
 }
 

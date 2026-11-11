@@ -133,3 +133,85 @@ function wifi(ctx, x, y, t, start, end, color, a, scale = 1, period = 1.6) {
 
 /** Marco del contexto: aplica la escala de diseño → píxeles del póster. */
 function begin(ctx, W, H, DW, DH) { ctx.save(); ctx.scale(W / DW, H / DH); }
+
+/* ------------------------------------------------------------------------------------------------
+ * Sprites: recortes del póster original (los inyecta construir.mjs en SPRITES_SRC) que se mueven
+ * por encima del propio póster. Como el fondo de cada recorte (cielo, degradé, papel) es suave y los
+ * bordes se difuminan, desplazarlos unos píxeles no deja huellas del original.
+ * ---------------------------------------------------------------------------------------------- */
+const SPR = {};
+
+function loadSprites(defs) {
+  return Promise.all(Object.entries(defs).map(([name, d]) => new Promise((ok, fail) => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas'); cv.width = d.pw; cv.height = d.ph;
+      const c = cv.getContext('2d'); c.drawImage(img, 0, 0, d.pw, d.ph);
+      const k = d.pw / d.w, f = (d.feather || [0, 0, 0, 0]).map(v => v * k); // [izq, arr, der, aba] en px del recorte
+      c.globalCompositeOperation = 'destination-in';
+      let g = c.createLinearGradient(0, 0, d.pw, 0);
+      g.addColorStop(0, 'rgba(0,0,0,' + (f[0] ? 0 : 1) + ')'); g.addColorStop(f[0] ? f[0] / d.pw : 0, 'rgba(0,0,0,1)');
+      g.addColorStop(1 - (f[2] ? f[2] / d.pw : 0), 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,' + (f[2] ? 0 : 1) + ')');
+      c.fillStyle = g; c.fillRect(0, 0, d.pw, d.ph);
+      g = c.createLinearGradient(0, 0, 0, d.ph);
+      g.addColorStop(0, 'rgba(0,0,0,' + (f[1] ? 0 : 1) + ')'); g.addColorStop(f[1] ? f[1] / d.ph : 0, 'rgba(0,0,0,1)');
+      g.addColorStop(1 - (f[3] ? f[3] / d.ph : 0), 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,' + (f[3] ? 0 : 1) + ')');
+      c.fillStyle = g; c.fillRect(0, 0, d.pw, d.ph);
+      SPR[name] = { cv, x: d.x, y: d.y, w: d.w, h: d.h };
+      ok();
+    };
+    img.onerror = () => fail(new Error('sprite ' + name));
+    img.src = d.src;
+  })));
+}
+
+/** Dibuja un sprite desplazado (dx, dy), rotado `rot` rad y escalado `sc` alrededor de (px, py) (por defecto, su centro). */
+function sprite(ctx, name, dx = 0, dy = 0, sc = 1, rot = 0, a = 1, px, py) {
+  const s = SPR[name]; if (!s || a <= 0.003) return;
+  ctx.save();
+  const cx = px ?? s.x + s.w / 2, cy = py ?? s.y + s.h / 2;
+  ctx.translate(cx + dx, cy + dy); if (rot) ctx.rotate(rot); if (sc !== 1) ctx.scale(sc, sc); ctx.translate(-cx, -cy);
+  if (a < 1) ctx.globalAlpha = a;
+  ctx.drawImage(s.cv, s.x, s.y, s.w, s.h);
+  ctx.restore();
+}
+
+/** Nube suave (varios círculos con degradé radial). */
+function cloud(ctx, x, y, sc, a) {
+  if (a <= 0.003) return;
+  const puffs = [[0, 0, 46], [44, -14, 40], [86, 2, 44], [-42, 6, 36], [128, 10, 32], [20, 16, 40], [66, 18, 36]];
+  for (const [px, py, r] of puffs) {
+    const rr = r * sc, g = ctx.createRadialGradient(x + px * sc, y + py * sc, 0, x + px * sc, y + py * sc, rr);
+    g.addColorStop(0, 'rgba(255,255,255,' + clamp(a) + ')'); g.addColorStop(0.55, 'rgba(255,255,255,' + clamp(a * 0.55) + ')'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x + px * sc, y + py * sc, rr, 0, TAU); ctx.fill();
+  }
+}
+
+/** Mancha de luz suave que se mueve (fondos vivos). */
+function blob(ctx, x, y, r, color, a) {
+  if (a <= 0.002) return;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, rgba(color, a)); g.addColorStop(1, rgba(color, 0));
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+}
+
+/** Número pseudoaleatorio estable a partir de una semilla entera. */
+function rnd(i, k = 0) { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); }
+
+/** Chip de datos tipo "tablero": etiqueta chica + valor grande. `a` = opacidad, `k` = progreso de entrada (0..1). */
+function chip(ctx, x, y, w, h, etiqueta, valor, color, a, k = 1) {
+  if (a <= 0.01) return;
+  const dy = (1 - easeOut(k)) * 14;
+  ctx.save(); ctx.translate(0, dy); ctx.globalAlpha = clamp(a);
+  rrect(ctx, x, y, w, h, h / 2);
+  ctx.fillStyle = 'rgba(6,18,46,0.78)'; ctx.fill();
+  ctx.shadowColor = rgba(color, 0.9); ctx.shadowBlur = 12; ctx.lineWidth = 2; ctx.strokeStyle = rgba(color, 0.9); ctx.stroke();
+  ctx.shadowBlur = 0;
+  glowDot(ctx, x + h / 2, y + h / 2, h * 0.42, color, 0.9);
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(190,215,255,0.9)'; ctx.font = '600 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText(etiqueta.toUpperCase(), x + h + 2, y + h * 0.32);
+  ctx.fillStyle = '#fff'; ctx.font = '700 20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+  ctx.fillText(valor, x + h + 2, y + h * 0.68);
+  ctx.restore();
+}

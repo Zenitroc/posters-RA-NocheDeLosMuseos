@@ -186,7 +186,7 @@ async function main() {
       const page = await ctx.newPage();
       const pedidos: string[] = [];
       page.on('request', (r) => pedidos.push(r.url()));
-      await page.goto(BASE + '/', { waitUntil: 'networkidle' });
+      await page.goto(BASE + '/proyectos', { waitUntil: 'networkidle' });
       await page.getByRole('heading', { name: /Proyectos que cobran vida/ }).waitFor();
       const pesados = pedidos.filter((u) => /\/posters\/.*\.(mp4|mind|js)(\?|$)|mindar|ExperienciaRA/.test(u));
       await ctx.close();
@@ -556,7 +556,7 @@ async function main() {
         const page = await ctx.newPage();
         const errores: string[] = [];
         page.on('pageerror', (e) => errores.push(e.message));
-        await page.goto(BASE + '/');
+        await page.goto(BASE + '/proyectos');
         await page.getByRole('heading', { name: /Proyectos que cobran vida/ }).waitFor();
         await page.screenshot({ path: join(SALIDA, 'webkit-inicio.png'), fullPage: true });
         await page.goto(`${BASE}/p/${slug}`);

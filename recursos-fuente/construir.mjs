@@ -30,13 +30,39 @@ const { values, positionals } = parseArgs({
 });
 const [modo, ...resto] = positionals;
 
-function codigoCapa(slug) {
+/** Recortes del póster (sprites.json: nombre → [x, y, w, h, izq, arr, der, aba] en coords de diseño 990×1400). */
+async function recortes(slug) {
+  const archivo = join(FUENTE, slug, 'sprites.json');
+  if (!existsSync(archivo)) return {};
+  const defs = JSON.parse(readFileSync(archivo, 'utf8'));
+  const poster = readFileSync(rutaPoster(slug)).toString('base64');
+  const navegador = await chromium.launch();
+  try {
+    const pagina = await navegador.newPage();
+    return await pagina.evaluate(async ({ defs, poster }) => {
+      const img = new Image(); img.src = 'data:image/jpeg;base64,' + poster; await img.decode();
+      const k = img.naturalWidth / 990, out = {};
+      for (const [nombre, [x, y, w, h, ...feather]] of Object.entries(defs)) {
+        const pw = Math.round(w * k), ph = Math.round(h * k);
+        const c = document.createElement('canvas'); c.width = pw; c.height = ph;
+        c.getContext('2d').drawImage(img, x * k, y * k, w * k, h * k, 0, 0, pw, ph);
+        out[nombre] = { x, y, w, h, pw, ph, feather: feather.length ? feather : [0, 0, 0, 0], src: c.toDataURL('image/jpeg', 0.9) };
+      }
+      return out;
+    }, { defs, poster });
+  } finally {
+    await navegador.close();
+  }
+}
+
+async function codigoCapa(slug) {
   const { global } = PROYECTOS[slug];
+  const sprites = await recortes(slug);
   const comun = readFileSync(join(FUENTE, '_comun/efectos.js'), 'utf8');
   const propio = readFileSync(join(FUENTE, slug, 'animacion.js'), 'utf8');
   return (
     `/* ${slug} · capa Canvas transparente generada por recursos-fuente/construir.mjs (no editar a mano). */\n` +
-    `(function (global) {\n'use strict';\n${comun}\n${propio}\n` +
+    `(function (global) {\n'use strict';\n${comun}\nconst SPRITES_SRC = ${JSON.stringify(sprites)};\n${propio}\n` +
     `global.${global} = { WIDTH: W, HEIGHT: H, DURATION: DUR, load, render };\n` +
     `})(typeof window !== 'undefined' ? window : globalThis);\n`
   );
@@ -52,7 +78,7 @@ async function conPagina(slug, fn) {
     await pagina.route('**/*', r => r.fulfill({ body: '<!doctype html><html><body style="margin:0"></body></html>', contentType: 'text/html' }));
     await pagina.goto('http://localhost:9999/');
     const poster = readFileSync(rutaPoster(slug)).toString('base64');
-    await pagina.addScriptTag({ content: codigoCapa(slug) });
+    await pagina.addScriptTag({ content: await codigoCapa(slug) });
     await pagina.evaluate(async ({ g, poster }) => {
       const img = new Image(); img.src = 'data:image/jpeg;base64,' + poster; await img.decode();
       window.__img = img; window.__anim = window[g]; await window.__anim.load();
@@ -67,7 +93,7 @@ if (modo === 'capa') {
   for (const slug of resto.length ? resto : Object.keys(PROYECTOS)) {
     const destino = join(RAIZ, 'public/posters', slug);
     mkdirSync(destino, { recursive: true });
-    writeFileSync(join(destino, 'capa.js'), codigoCapa(slug));
+    writeFileSync(join(destino, 'capa.js'), await codigoCapa(slug));
     console.log(`capa ${slug} → public/posters/${slug}/capa.js`);
   }
 } else if (modo === 'stills') {

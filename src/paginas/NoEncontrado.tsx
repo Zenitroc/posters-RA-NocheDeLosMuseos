@@ -15,7 +15,7 @@ export default function NoEncontrado({
     <section className="pagina-mensaje contenedor">
       <h1>{titulo}</h1>
       <p>{detalle}</p>
-      <Link to="/" className="boton boton--primario">
+      <Link to="/proyectos" className="boton boton--primario">
         Ver todos los proyectos
       </Link>
     </section>

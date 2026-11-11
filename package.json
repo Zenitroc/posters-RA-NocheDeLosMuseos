@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "node scripts/pruebas/e2e-camara-simulada.ts",
+    "test:e2e:escaner": "node scripts/pruebas/e2e-escaner.ts",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "proyecto:nuevo": "node scripts/proyecto-nuevo.ts",
     "proyecto:preparar": "node scripts/proyecto-preparar.ts",

@@ -12,9 +12,9 @@ function abrir(ruta: string) {
   return router;
 }
 
-describe('Inicio (/)', () => {
+describe('Catálogo (/proyectos)', () => {
   it('muestra título, subtítulo y sólo los proyectos activos', async () => {
-    abrir('/');
+    abrir('/proyectos');
     expect(await screen.findByRole('heading', { level: 1, name: /Proyectos que cobran vida/i })).toBeInTheDocument();
     expect(screen.getByText('Noche de los Museos — UTN Buenos Aires')).toBeInTheDocument();
     const catalogo = document.querySelector<HTMLElement>('.grilla-proyectos')!;
@@ -24,7 +24,7 @@ describe('Inicio (/)', () => {
   });
 
   it('usa miniaturas livianas (no el póster ni el video) en el catálogo', async () => {
-    abrir('/');
+    abrir('/proyectos');
     const img = await screen.findByAltText('Póster del proyecto ZonAR');
     expect(img).toHaveAttribute('src', '/posters/zonar/miniatura.jpg?v=1');
     expect(document.querySelector('video')).toBeNull();
@@ -32,7 +32,7 @@ describe('Inicio (/)', () => {
 
   it('navega del catálogo a la página del proyecto', async () => {
     const usuario = userEvent.setup();
-    const router = abrir('/');
+    const router = abrir('/proyectos');
     await usuario.click(await screen.findByRole('link', { name: /ZonAR/ }));
     expect(router.state.location.pathname).toBe('/p/zonar');
     expect(await screen.findByRole('heading', { level: 1, name: 'ZonAR' })).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('Página de proyecto (/p/:slug)', () => {
   it('slug inexistente o proyecto inactivo: página amable con salida al catálogo', async () => {
     abrir('/p/no-existe');
     expect(await screen.findByRole('heading', { name: 'No encontramos ese proyecto' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Ver todos los proyectos' })).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Ver todos los proyectos' })).toHaveAttribute('href', '/proyectos');
   });
 
   it('proyecto inactivo no se publica', async () => {

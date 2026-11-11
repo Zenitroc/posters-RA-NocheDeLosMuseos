@@ -7,8 +7,13 @@ vi.mock('virtual:proyectos', () => ({ default: { proyectos: [], problemas: [] } 
 
 describe('sin proyectos cargados', () => {
   it('el inicio funciona y lo informa', async () => {
-    render(<RouterProvider router={createMemoryRouter(rutas, { initialEntries: ['/'] })} />);
+    render(<RouterProvider router={createMemoryRouter(rutas, { initialEntries: ['/proyectos'] })} />);
     expect(await screen.findByText('Todavía no hay proyectos publicados')).toBeInTheDocument();
+  });
+
+  it('la portada (cámara) avisa que no hay pósters listos en lugar de pedir la cámara', async () => {
+    render(<RouterProvider router={createMemoryRouter(rutas, { initialEntries: ['/'] })} />);
+    expect(await screen.findByText('Todavía no hay pósters listos')).toBeInTheDocument();
   });
 
   it('recursos lo informa', async () => {

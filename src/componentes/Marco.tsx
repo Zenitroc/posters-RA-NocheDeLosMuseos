@@ -20,6 +20,12 @@ export function Marco() {
               <small>Noche de los Museos · UTN BA</small>
             </span>
           </Link>
+          <nav className="cabecera__nav" aria-label="Principal">
+            <Link to="/proyectos">Proyectos</Link>
+            <Link to="/" className="boton boton--chico boton--primario">
+              Abrir cámara
+            </Link>
+          </nav>
         </div>
       </header>
       <main id="contenido" tabIndex={-1}>

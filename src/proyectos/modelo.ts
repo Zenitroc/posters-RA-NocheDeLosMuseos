@@ -119,8 +119,17 @@ export interface ProblemaCarpeta {
   errores: string[];
 }
 
+/** Archivo .mind único con los pósters de todos los proyectos (lo usa el escáner de la portada). */
+export interface EscanerCatalogo {
+  url: string;
+  /** Slug de cada póster; la posición es el `targetIndex` de MindAR. */
+  slugs: string[];
+}
+
 export interface Catalogo {
   proyectos: ProyectoCatalogo[];
+  /** Ausente si ningún proyecto tiene póster compilado. */
+  escaner?: EscanerCatalogo;
   /** Carpetas que no pudieron cargarse (manifiesto inválido, slug inválido, etc.). */
   problemas: ProblemaCarpeta[];
 }

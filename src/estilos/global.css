@@ -1452,3 +1452,100 @@ li[data-estado='listo'] .carga-pasos__icono {
     word-break: normal;
   }
 }
+
+/* ---------- Portada: escáner de cámara ---------- */
+
+.ra--escaner .ra-barra-sup {
+  justify-content: space-between;
+}
+
+.ra-marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.6);
+}
+
+.ra-marca > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ra-marca__logo {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+
+.ra-enlace {
+  flex: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.ra--vacio {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.ra-controles {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cabecera__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.cabecera__nav a:not(.boton) {
+  color: var(--texto-suave);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.heroe__accion {
+  margin-top: 1.25rem;
+}
+
+/* Celulares angostos y apaisados */
+@media (max-width: 420px) {
+  .cabecera__nav a:not(.boton) {
+    display: none;
+  }
+  .marca__texto small {
+    display: none;
+  }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .ra-guia {
+    height: 62dvh;
+  }
+  .ra-barra-inf {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 1rem;
+  }
+  .ra-tarjeta {
+    max-height: 90dvh;
+    overflow: auto;
+  }
+}

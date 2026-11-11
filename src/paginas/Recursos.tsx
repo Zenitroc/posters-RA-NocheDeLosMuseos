@@ -52,8 +52,9 @@ export default function Recursos() {
       <div className="no-imprimir">
         <h1>Recursos para impresión</h1>
         <p className="recursos__intro">
-          Códigos QR de cada póster, su URL y el estado de sus archivos. Cada QR abre directamente la experiencia del
-          proyecto. Para agregar proyectos, ver el README del repositorio.
+          El <strong>QR general</strong> abre la cámara directamente y reconoce cualquier póster de la muestra: es el que
+          conviene imprimir en la entrada y en cada póster. Debajo, el QR de la página de cada proyecto, su URL y el
+          estado de sus archivos. Para agregar proyectos, ver el README del repositorio.
         </p>
 
         <div className="recursos__config">
@@ -101,6 +102,14 @@ export default function Recursos() {
           </Aviso>
         )}
 
+        {base && (
+          <ul className="grilla-qr">
+            <li>
+              <FichaGeneral base={base} />
+            </li>
+          </ul>
+        )}
+
         {proyectos.length === 0 ? (
           <div className="vacio">
             <h3>No hay proyectos cargados</h3>
@@ -139,6 +148,51 @@ function useQrSvg(url: string | null) {
     };
   }, [url]);
   return url ? svg : null;
+}
+
+/** QR de la portada del sitio: abre la cámara y reconoce cualquier póster. */
+function FichaGeneral({ base }: { base: string }) {
+  const url = base.replace(/\/+$/, '') + '/';
+  const svg = useQrSvg(url);
+  const descargarSvg = () => {
+    if (!svg) return;
+    const blobUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    descargar(blobUrl, 'qr-general.svg');
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  };
+  return (
+    <article className="ficha-qr" aria-labelledby="ficha-general">
+      <div className="ficha-qr__cabecera">
+        <div>
+          <h2 id="ficha-general">QR general de la muestra</h2>
+          <code>/</code>
+        </div>
+        <span className="etiqueta etiqueta--ok">Recomendado</span>
+      </div>
+      <div className="ficha-qr__codigo">
+        {svg ? <img src={svgADataUrl(svg)} alt={`Código QR que abre ${url}`} /> : <div className="sin-imagen">Sin QR</div>}
+      </div>
+      <p className="ficha-qr__url">
+        <span>{url}</span>
+      </p>
+      <p className="ficha-qr__modo">Abre la cámara en el acto y reconoce solo cuál póster se apunta.</p>
+      <div className="ficha-qr__acciones">
+        <button
+          type="button"
+          className="boton boton--chico"
+          onClick={async () => descargar(await generarQrPngDataUrl(url, 2048), 'qr-general.png')}
+        >
+          <IconoDescargar /> PNG
+        </button>
+        <button type="button" className="boton boton--chico" onClick={descargarSvg} disabled={!svg}>
+          <IconoDescargar /> SVG
+        </button>
+        <Link to="/" className="boton boton--chico boton--fantasma">
+          Abrir cámara
+        </Link>
+      </div>
+    </article>
+  );
 }
 
 function FichaProyecto({ proyecto: p, base }: { proyecto: ProyectoCatalogo; base: string | null }) {

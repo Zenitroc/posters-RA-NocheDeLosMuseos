@@ -8,9 +8,9 @@ import { catalogo, proyectosPublicados } from '../proyectos/catalogo.ts';
 import { rutaProyecto } from '../proyectos/urls.ts';
 
 const PASOS = [
-  { icono: IconoQr, titulo: 'Escaneá el QR', texto: 'Con la cámara de tu celular, junto a cada póster.' },
-  { icono: IconoCamara, titulo: 'Activá la cámara', texto: 'Sin apps ni registros: funciona en el navegador.' },
-  { icono: IconoEncuadre, titulo: 'Apuntá al póster', texto: 'Y miralo cobrar vida sobre el papel.' },
+  { icono: IconoQr, titulo: 'Escaneá el QR', texto: 'El de la entrada de la muestra: abre la cámara directo.' },
+  { icono: IconoEncuadre, titulo: 'Apuntá a un póster', texto: 'Se reconoce solo: no hay que elegir nada.' },
+  { icono: IconoCamara, titulo: 'Mirá cómo cobra vida', texto: 'Sin apps ni registros: funciona en el navegador.' },
 ];
 
 export default function Inicio() {
@@ -27,6 +27,11 @@ export default function Inicio() {
         <p className="heroe__bajada">
           Los proyectos finales de Ingeniería en Sistemas de Información salen del papel. Escaneá el código de cada
           póster, apuntá tu celular y descubrí su versión animada en realidad aumentada.
+        </p>
+        <p className="heroe__accion">
+          <Link to="/" className="boton boton--primario">
+            <IconoCamara /> Abrir la cámara
+          </Link>
         </p>
         <ol className="pasos" aria-label="Cómo funciona">
           {PASOS.map(({ icono: Icono, titulo, texto }) => (
@@ -78,8 +83,8 @@ export default function Inicio() {
 
         {proyectos.length > 0 && (
           <Aviso className="no-imprimir" tipo="info">
-            En la muestra, el acceso más rápido es escanear el QR que está junto a cada póster. Este catálogo es una
-            alternativa para abrir cualquier proyecto.
+            En la muestra, lo más rápido es abrir la cámara y apuntar a un póster: se reconoce solo. Este catálogo sirve
+            para ver cada proyecto sin estar frente al póster.
           </Aviso>
         )}
       </section>

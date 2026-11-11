@@ -3,9 +3,14 @@
 Plataforma WebAR de la **Noche de los Museos — UTN Buenos Aires** (Departamento de Ingeniería en
 Sistemas de Información, UTN FRBA).
 
-El visitante escanea el QR que está junto a un póster impreso, se abre la página del proyecto,
-toca **Activar cámara**, apunta al póster y ve sobre el papel su versión animada siguiendo al
-póster mientras mueve el teléfono. Sin apps, sin registros, sólo el navegador.
+El visitante escanea **un único QR** (el de la entrada o el de cualquier póster): se abre **la cámara
+directamente**, apunta a cualquier póster de la muestra y la plataforma **lo reconoce sola** y
+reproduce sobre el papel su versión animada, siguiendo al póster mientras mueve el teléfono. Sin
+apps, sin registros, sin elegir nada: sólo el navegador. Funciona en celulares (vertical y apaisado).
+
+Todos los pósters se compilan en un único archivo `.mind` (`escaner/targets.mind`, generado al
+construir el sitio fusionando los `target.mind` de cada proyecto, sin recompilar). MindAR detecta
+todos a la vez; al reconocer uno, se descarga y reproduce solo la animación de ese proyecto.
 
 La animación de cada póster puede ser:
 
@@ -20,6 +25,9 @@ El proyecto **ZonAR** usa sus recursos definitivos: póster original (1131×1600
 **AgroLink, Arbiter, INFRABOT y VictoriaX** también tienen capa Canvas + MP4 de respaldo. Sus
 animaciones están en `recursos-fuente/<slug>/animacion.js` (utilidades comunes en
 `recursos-fuente/_comun/efectos.js`) y los pósters originales en `recursos-fuente/<slug>/original/`.
+Mueven **recortes reales del póster** (el camión, la foto de la sala, el robot, las ilustraciones;
+se declaran en `recursos-fuente/<slug>/sprites.json`) y le suman fondos en movimiento (nubes, papeles,
+luces, burbujas) y efectos sobre los elementos del diseño.
 Para regenerar tras ajustar una animación:
 
 ```bash
@@ -34,7 +42,8 @@ node recursos-fuente/construir.mjs stills agrolink 2.2 5   # PNG de prueba en sa
 
 | Ruta | Pantalla |
 |---|---|
-| `/` | Inicio: presentación y catálogo de proyectos |
+| `/` | **Cámara directa**: reconoce cualquier póster y activa su animación |
+| `/proyectos` | Catálogo de proyectos (alternativa sin cámara) |
 | `/p/<slug>` | Página del proyecto (destino del QR) |
 | `/p/<slug>/ra` | Experiencia de realidad aumentada (cámara) |
 | `/p/<slug>/video` | Animación sin RA (alternativa) |
@@ -75,6 +84,7 @@ y apuntá la cámara a esa pantalla.
 | `npm run typecheck` / `npm run lint` | TypeScript / ESLint |
 | `npm test` | Pruebas unitarias y de navegación (Vitest) |
 | `npm run test:e2e` | E2E en Chromium con cámara simulada + WebKit (requiere `npm run build` antes) |
+| `npm run test:e2e:escaner` | Cámara simulada filmando cada póster por separado: verifica que `/` lo reconozca solo y arranque su animación |
 | `npm run check` | typecheck + lint + test + build |
 | `npm run proyecto:nuevo` | Agrega un proyecto (ver abajo) |
 | `npm run proyecto:preparar` | Genera miniaturas y compila los `.mind` que falten o estén desactualizados |

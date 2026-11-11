@@ -19,11 +19,17 @@ export const rutas: RouteObject[] = [
     ErrorBoundary: ErrorRuta,
   },
   {
+    // Portada: cámara directa que reconoce cualquier póster. Pantalla completa, fuera del marco.
+    path: '/',
+    lazy: diferida(() => import('./paginas/Escaner.tsx')),
+    ErrorBoundary: ErrorRuta,
+  },
+  {
     path: '/',
     Component: Marco,
     ErrorBoundary: ErrorRuta,
     children: [
-      { index: true, Component: Inicio },
+      { path: 'proyectos', Component: Inicio },
       { path: 'p/:slug', Component: PaginaProyecto },
       { path: 'p/:slug/video', Component: VistaAlternativa },
       { path: 'recursos', lazy: diferida(() => import('./paginas/Recursos.tsx')) },
