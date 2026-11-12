@@ -1,0 +1,29 @@
+{
+  "nombre": "PreTriage",
+  "subtitulo": "Empezá tu atención desde donde estés",
+  "descripcion": "Proyecto final de UTN FRBA: elegí un hospital según distancia, espera y cobertura, completá el pretriage desde el celular mientras viajás y llegá con el equipo médico ya al tanto de tu situación.",
+  "masInfo": [
+    "PreTriage es una aplicación que busca descongestionar las guardias de los hospitales. Antes de salir de su casa, el paciente le cuenta sus síntomas, por escrito o por voz, a un asistente con inteligencia artificial que estima qué tan urgente es su caso. La aplicación le muestra los hospitales cercanos con su tiempo de espera y la ingresa en una fila virtual que prioriza a quien más lo necesita. Así se reducen las esperas y cada paciente es atendido en el momento y el lugar adecuados."
+  ],
+  "equipo": [
+    "Franco Callero",
+    "Matías Canevaro",
+    "Valentín Manfredi",
+    "Matías Vidaurre"
+  ],
+  "orden": 7,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "PreTriageAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

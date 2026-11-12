@@ -74,6 +74,8 @@ export interface ManifiestoProyecto {
   nombre: string;
   subtitulo?: string;
   descripcion?: string;
+  /** Texto ampliado (párrafos) que se muestra flotando junto al póster en la RA. */
+  masInfo?: string[];
   equipo?: string[];
   orden: number;
   activo: boolean;
@@ -231,6 +233,20 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
   const subtitulo = textoOpcional(datos.subtitulo, 'subtitulo', errores);
   const descripcion = textoOpcional(datos.descripcion, 'descripcion', errores);
 
+  // "masInfo": un texto (párrafos separados por una línea en blanco) o una lista de párrafos.
+  let masInfo: string[] | undefined;
+  if (datos.masInfo !== undefined && datos.masInfo !== null && datos.masInfo !== '') {
+    const crudo = datos.masInfo;
+    const lista = typeof crudo === 'string' ? crudo.split(/\n\s*\n/) : Array.isArray(crudo) && crudo.every((p) => typeof p === 'string') ? crudo : null;
+    if (lista) {
+      // Dentro de un párrafo, los saltos de línea simples son cortes de copia: se unen con espacios.
+      masInfo = (lista as string[]).map((p) => p.replace(/\s+/g, ' ').trim()).filter(Boolean);
+      if (masInfo.length === 0) masInfo = undefined;
+    } else {
+      errores.push('"masInfo" debe ser un texto o una lista de textos (párrafos).');
+    }
+  }
+
   let equipo: string[] | undefined;
   if (datos.equipo !== undefined) {
     if (Array.isArray(datos.equipo) && datos.equipo.every((p) => typeof p === 'string')) {
@@ -349,7 +365,7 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
     }
   }
 
-  const conocidos = new Set(['$schema', 'slug', 'nombre', 'subtitulo', 'descripcion', 'equipo', 'orden', 'activo', 'demo', 'archivos', 'reproduccion', 'animacion']);
+  const conocidos = new Set(['$schema', 'slug', 'nombre', 'subtitulo', 'descripcion', 'masInfo', 'equipo', 'orden', 'activo', 'demo', 'archivos', 'reproduccion', 'animacion']);
   for (const clave of Object.keys(datos)) {
     if (!conocidos.has(clave)) advertencias.push(`Campo desconocido "${clave}" (se ignora).`);
   }
@@ -358,7 +374,7 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
   return {
     ok: true,
     advertencias,
-    manifiesto: { nombre, subtitulo, descripcion, equipo, orden, activo, demo, archivos, reproduccion, animacion },
+    manifiesto: { nombre, subtitulo, descripcion, masInfo, equipo, orden, activo, demo, archivos, reproduccion, animacion },
   };
 }
 

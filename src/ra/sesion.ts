@@ -65,6 +65,11 @@ export interface OpcionesSesion {
   /** La cámara se cortó durante la sesión (otra app la tomó, se bloqueó el teléfono…). */
   alInterrupcion?(error: ErrorRA): void;
   alAdvertencia?(mensaje: string): void;
+  /**
+   * En cada cuadro: esquinas del póster a la vista en píxeles del contenedor (sup-izq, sup-der,
+   * inf-der, inf-izq), o null si no hay ninguno. Sirve para anclar elementos HTML al póster (RA en pantalla).
+   */
+  alCuadro?(esquinas: { x: number; y: number }[] | null): void;
 }
 
 /** Sólo puede haber una sesión activa: abrir otra cierra la anterior. */
@@ -415,6 +420,7 @@ export class SesionRA {
       o.animacion.actualizar(tiempo, visible);
     }
     renderer.render(escena, camara3d);
+    this.op.alCuadro?.(this.esquinasEnPantalla());
   };
 
   /** Portado de MindARThree.resize(): ajusta video de cámara, FOV y lienzo al contenedor. */

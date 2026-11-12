@@ -1,6 +1,6 @@
 /*
- * Utilidades compartidas por las capas Canvas de los pósters (AgroLink, Arbiter, INFRABOT, VictoriaX).
- * Se concatenan delante del código de cada animación (ver recursos-fuente/construir.py).
+ * Utilidades compartidas por las capas Canvas de los pósters (ver PROYECTOS en construir.mjs).
+ * Se concatenan delante del código de cada animación (ver recursos-fuente/construir.mjs).
  * Todo se dibuja en coordenadas de diseño 990×1400 (el póster impreso se escala a 1131×1600).
  * Regla de oro: t=0 y t=DURATION dejan el lienzo vacío → el loop es invisible y el póster impreso
  * se ve intacto cuando no hay animación.
@@ -171,6 +171,24 @@ function sprite(ctx, name, dx = 0, dy = 0, sc = 1, rot = 0, a = 1, px, py) {
   ctx.save();
   const cx = px ?? s.x + s.w / 2, cy = py ?? s.y + s.h / 2;
   ctx.translate(cx + dx, cy + dy); if (rot) ctx.rotate(rot); if (sc !== 1) ctx.scale(sc, sc); ctx.translate(-cx, -cy);
+  if (a < 1) ctx.globalAlpha = a;
+  ctx.drawImage(s.cv, s.x, s.y, s.w, s.h);
+  ctx.restore();
+}
+
+/**
+ * Aplica al contexto la transformación de una pieza: desplaza (dx, dy), rota `rot` y escala (sx, sy)
+ * alrededor del pivote (px, py). Sirve para dibujar piezas anidadas (ojos dentro de una cabeza que se mueve).
+ */
+function pivotar(ctx, px, py, dx = 0, dy = 0, rot = 0, sx = 1, sy = sx) {
+  ctx.translate(px + dx, py + dy); if (rot) ctx.rotate(rot); if (sx !== 1 || sy !== 1) ctx.scale(sx, sy); ctx.translate(-px, -py);
+}
+
+/** Sprite con escala no uniforme: o = { dx, dy, sx, sy, rot, a, px, py }. */
+function spriteT(ctx, name, o = {}) {
+  const s = SPR[name], a = o.a ?? 1; if (!s || a <= 0.003) return;
+  ctx.save();
+  pivotar(ctx, o.px ?? s.x + s.w / 2, o.py ?? s.y + s.h / 2, o.dx, o.dy, o.rot, o.sx ?? 1, o.sy ?? o.sx ?? 1);
   if (a < 1) ctx.globalAlpha = a;
   ctx.drawImage(s.cv, s.x, s.y, s.w, s.h);
   ctx.restore();

@@ -102,9 +102,15 @@ export default function PaginaProyecto() {
           </section>
         )}
 
-        {(proyecto.descripcion || proyecto.equipo?.length) && (
+        {(proyecto.descripcion || proyecto.masInfo?.length || proyecto.equipo?.length) && (
           <section aria-label="Sobre el proyecto">
-            {proyecto.descripcion && <p className="proyecto__descripcion">{proyecto.descripcion}</p>}
+            {proyecto.masInfo?.length
+              ? proyecto.masInfo.map((p) => (
+                  <p key={p} className="proyecto__descripcion">
+                    {p}
+                  </p>
+                ))
+              : proyecto.descripcion && <p className="proyecto__descripcion">{proyecto.descripcion}</p>}
             {proyecto.equipo && proyecto.equipo.length > 0 && (
               <p className="proyecto__equipo">Equipo: {proyecto.equipo.join(', ')}</p>
             )}

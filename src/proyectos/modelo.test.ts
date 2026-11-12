@@ -186,3 +186,22 @@ describe('configuración de animación', () => {
     expect(ordenAnimaciones('auto', { video: false, canvas: false })).toEqual([]);
   });
 });
+
+describe('normalizarManifiesto: masInfo', () => {
+  it('acepta una lista de párrafos y une los saltos de línea de copia', () => {
+    const r = normalizarManifiesto({ nombre: 'X', masInfo: ['Primer\npárrafo  largo.', '  ', 'Segundo.'] });
+    expect(r.ok && r.manifiesto.masInfo).toEqual(['Primer párrafo largo.', 'Segundo.']);
+  });
+
+  it('acepta un texto con párrafos separados por una línea en blanco', () => {
+    const r = normalizarManifiesto({ nombre: 'X', masInfo: 'Uno\ncontinúa.\n\nDos.' });
+    expect(r.ok && r.manifiesto.masInfo).toEqual(['Uno continúa.', 'Dos.']);
+  });
+
+  it('es opcional y rechaza tipos inválidos', () => {
+    const vacio = normalizarManifiesto({ nombre: 'X' });
+    expect(vacio.ok && vacio.manifiesto.masInfo).toBeUndefined();
+    const malo = normalizarManifiesto({ nombre: 'X', masInfo: [1, 2] });
+    expect(malo.ok).toBe(false);
+  });
+});

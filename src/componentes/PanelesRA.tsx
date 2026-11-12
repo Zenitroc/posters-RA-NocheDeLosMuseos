@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
-import { IconoCheck, IconoRepetir, IconoVideo } from './Iconos.tsx';
+import { IconoCerrar, IconoCheck, IconoRepetir, IconoVideo } from './Iconos.tsx';
 import { mensajeError, type CodigoErrorRA } from '../ra/errores.ts';
 import { porcentajeCarga } from '../ra/estado.ts';
 import type { ProgresoCarga } from '../ra/sesion.ts';
+import type { ContenidoInfo } from '../ra/info-flotante.ts';
 
 export function PanelCarga({ progreso }: { progreso: ProgresoCarga }) {
   const pasos: { clave: string; texto: string; listo: boolean; activo: boolean }[] = [
@@ -97,6 +98,69 @@ export function PanelError({
           <Link to={volver ?? '/proyectos'} replace className="boton boton--fantasma">
             {volver ? 'Volver al proyecto' : 'Ver los proyectos'}
           </Link>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/**
+ * Hoja inferior con la información ampliada del proyecto, sin salir de la cámara (alternativa a la
+ * tarjeta que flota en RA, para leer cómodo o cuando no entra en pantalla).
+ */
+export function HojaInfo({
+  info,
+  rutaProyecto: ruta,
+  alCerrar,
+}: {
+  info: ContenidoInfo;
+  rutaProyecto: string;
+  alCerrar: () => void;
+}) {
+  const cerrarRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    cerrarRef.current?.focus();
+    const alTeclear = (e: KeyboardEvent) => e.key === 'Escape' && alCerrar();
+    window.addEventListener('keydown', alTeclear);
+    return () => window.removeEventListener('keydown', alTeclear);
+  }, [alCerrar]);
+  return (
+    <div className="ra-hoja-fondo" onClick={alCerrar}>
+      <section
+        className="ra-hoja"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-hoja"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="ra-hoja__cabecera">
+          <div>
+            <p className="ra-hoja__etiqueta">Proyecto final · UTN FRBA</p>
+            <h2 id="titulo-hoja">{info.nombre}</h2>
+            {info.subtitulo && <p className="ra-hoja__subtitulo">{info.subtitulo}</p>}
+          </div>
+          <button type="button" className="ra-boton-icono" onClick={alCerrar} aria-label="Cerrar" ref={cerrarRef}>
+            <IconoCerrar />
+          </button>
+        </header>
+        <div className="ra-hoja__cuerpo">
+          {info.parrafos.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+          {info.equipo?.length ? (
+            <>
+              <p className="ra-hoja__etiqueta">Equipo</p>
+              <p className="ra-hoja__equipo">{info.equipo.join(' · ')}</p>
+            </>
+          ) : null}
+        </div>
+        <div className="ra-hoja__acciones">
+          <Link to={ruta} className="boton boton--chico">
+            Página del proyecto
+          </Link>
+          <button type="button" className="boton boton--chico boton--primario" onClick={alCerrar}>
+            Volver a la cámara
+          </button>
         </div>
       </section>
     </div>

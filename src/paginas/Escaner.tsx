@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { IconoCamara, IconoPausa, IconoPlay, IconoRepetir, Logo } from '../componentes/Iconos.tsx';
-import { PanelCarga, PanelError } from '../componentes/PanelesRA.tsx';
+import { HojaInfo, PanelCarga, PanelError } from '../componentes/PanelesRA.tsx';
 import { useMantenerPantallaEncendida } from '../componentes/useMantenerPantalla.ts';
 import { useTitulo } from '../componentes/useTitulo.ts';
 import { TEXTOS } from '../config.ts';
@@ -15,6 +15,9 @@ import { REPRODUCCION_POR_DEFECTO, type ProyectoCatalogo } from '../proyectos/mo
 import { rutaProyecto } from '../proyectos/urls.ts';
 import { prepararAnimacion, type Animacion, type ResultadoReproduccion } from '../ra/animacion.ts';
 import { crearAnimacion } from '../ra/crear-animacion.ts';
+import { InfoFlotante } from '../componentes/InfoFlotante.tsx';
+import { useInfoFlotante } from '../componentes/useInfoFlotante.ts';
+import { contenidoInfo } from '../ra/info-flotante.ts';
 import { ErrorRA, type CodigoErrorRA } from '../ra/errores.ts';
 import { estadoInicialRA, reducirRA } from '../ra/estado.ts';
 import { SesionRA, type ProgresoCarga } from '../ra/sesion.ts';
@@ -53,6 +56,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
   /** Póster a la vista y si su animación todavía se está descargando. */
   const [actual, setActual] = useState<ProyectoCatalogo | null>(null);
   const [cargandoAnimacion, setCargandoAnimacion] = useState(false);
+  const { receptorRef, barraSupRef, barraInfRef, zonaUtil, alCuadro, hojaAbierta, abrirHoja, cerrarHoja } = useInfoFlotante(escenaRef);
   const animacionesRef = useRef(new Map<number, Animacion>());
   const indiceRef = useRef<number | null>(null);
 
@@ -138,6 +142,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
         despachar({ tipo: 'perdido' });
         if (proyecto?.reproduccion.alPerderSeguimiento !== 'continuar') animaciones.get(indice)?.pausar();
       },
+      alCuadro,
       alInterrupcion: (e) => {
         sesion.detener();
         animaciones.forEach((a) => a.pausar());
@@ -182,7 +187,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
       animaciones.clear();
       indiceRef.current = null;
     };
-  }, [url, slugs, estado.intento, aplicarResultado]);
+  }, [url, slugs, estado.intento, aplicarResultado, alCuadro]);
 
   useMantenerPantallaEncendida(estado.fase !== 'error');
 
@@ -209,12 +214,17 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
   };
 
   const detectado = estado.fase === 'detectado' && actual;
+  const info = actual ? contenidoInfo(actual) : null;
   const buscando = estado.fase === 'buscando' || estado.fase === 'perdido';
 
   return (
     <div className="ra ra--escaner">
       {/* La sesión inserta aquí la cámara y el lienzo WebGL (fuera del control de React). */}
       <div ref={escenaRef} className="ra-escena" />
+
+      {actual && info && (
+        <InfoFlotante key={actual.slug} info={info} receptorRef={receptorRef} zonaUtil={zonaUtil} alAbrir={abrirHoja} oculto={hojaAbierta} />
+      )}
 
       <div className={`ra-guia ${buscando ? '' : 'ra-guia--oculta'}`} aria-hidden="true">
         <span />
@@ -224,7 +234,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
       </div>
 
       <div className="ra-interfaz">
-        <header className="ra-barra-sup">
+        <header className="ra-barra-sup" ref={barraSupRef}>
           <Link to="/proyectos" className="ra-marca" aria-label={`${TEXTOS.titulo}: ver todos los proyectos`}>
             <Logo className="ra-marca__logo" />
             <span>{detectado ? actual.nombre : TEXTOS.titulo}</span>
@@ -234,7 +244,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
           </Link>
         </header>
 
-        <div className="ra-barra-inf">
+        <div className="ra-barra-inf" ref={barraInfRef}>
           {estado.fase !== 'cargando' && estado.fase !== 'error' && (
             <p className={`ra-estado ra-estado--${estado.fase}`} role="status" aria-live="polite">
               <span className="ra-estado__punto" aria-hidden="true" />
@@ -265,13 +275,21 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
                   </button>
                 </>
               )}
-              <Link to={rutaProyecto(actual.slug)} className="boton boton--fantasma">
-                Más info
-              </Link>
+              {info ? (
+                <button type="button" className="boton boton--fantasma" onClick={abrirHoja}>
+                  Más info
+                </button>
+              ) : (
+                <Link to={rutaProyecto(actual.slug)} className="boton boton--fantasma">
+                  Más info
+                </Link>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {hojaAbierta && actual && info && <HojaInfo info={info} rutaProyecto={rutaProyecto(actual.slug)} alCerrar={cerrarHoja} />}
 
       {estado.fase === 'cargando' && <PanelCarga progreso={estado.progreso} />}
       {estado.fase === 'error' && estado.error && (

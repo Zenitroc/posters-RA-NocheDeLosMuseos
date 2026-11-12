@@ -1,0 +1,30 @@
+{
+  "nombre": "DrHero",
+  "subtitulo": "Opere tranquilo: DrHero ya hizo la cuenta",
+  "descripcion": "Proyecto final de UTN FRBA: sistema de gestión y liquidación de honorarios en equipos quirúrgicos multiinstitucionales, con OCR/IA, modo offline, cálculo automático y reportes.",
+  "masInfo": [
+    "DrHero es una plataforma web y móvil que ayuda a los equipos quirúrgicos que trabajan en distintas instituciones a gestionar sus cirugías y honorarios. Permite organizar los equipos y sus integrantes, registrar en qué institución se realizó cada intervención, qué procedimientos se hicieron y quiénes participaron. También facilita la carga de datos leyendo los partes quirúrgicos con inteligencia artificial. A partir de esa información y de las reglas acordadas por cada equipo, el sistema calcula cuánto le corresponde cobrar a cada profesional, prepara las liquidaciones, permite seguir los pagos pendientes y genera reportes. Su objetivo es reunir información que suele quedar dispersa en planillas y documentos, reducir el trabajo manual y darles a los equipos mayor claridad sobre cómo se calculan y distribuyen sus honorarios."
+  ],
+  "equipo": [
+    "Juan Ignacio Bencardino Slotowsky",
+    "Nicolás Ariel Molina",
+    "Sofía Marques Gómez",
+    "Luciano Martín Foglia",
+    "Federico Ascorti"
+  ],
+  "orden": 6,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "DrHeroAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

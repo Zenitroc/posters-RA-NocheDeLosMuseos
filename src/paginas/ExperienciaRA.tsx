@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { IconoCerrar, IconoPausa, IconoPlay, IconoRepetir, IconoVideo } from '../componentes/Iconos.tsx';
-import { PanelCarga, PanelError } from '../componentes/PanelesRA.tsx';
+import { HojaInfo, PanelCarga, PanelError } from '../componentes/PanelesRA.tsx';
+import { InfoFlotante } from '../componentes/InfoFlotante.tsx';
+import { useInfoFlotante } from '../componentes/useInfoFlotante.ts';
+import { contenidoInfo } from '../ra/info-flotante.ts';
 import { useMantenerPantallaEncendida } from '../componentes/useMantenerPantalla.ts';
 import { useTitulo } from '../componentes/useTitulo.ts';
 import { buscarProyecto, proporcionPoster } from '../proyectos/catalogo.ts';
@@ -44,6 +47,8 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
   const [modoForzado, setModoForzado] = useState<ModoAnimacion | null>(esModoAnimacion(modoUrl) ? modoUrl : null);
   const mostrarModo = depurar || busqueda.has('modo');
   const [estado, despachar] = useReducer(reducirRA, estadoInicialRA);
+  const { receptorRef, barraSupRef, barraInfRef, zonaUtil, alCuadro, hojaAbierta, abrirHoja, cerrarHoja } = useInfoFlotante(escenaRef);
+  const info = contenidoInfo(proyecto);
   // Último estado, para leerlo dentro de callbacks de la sesión sin reiniciarla.
   const estadoRef = useRef(estado);
   useLayoutEffect(() => {
@@ -123,6 +128,7 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
         despachar({ tipo: 'error', codigo: e.codigo });
       },
       alAdvertencia: (mensaje) => despachar({ tipo: 'advertencia', mensaje }),
+      alCuadro,
     });
 
     // Gancho para la prueba E2E (scripts/pruebas): sólo con ?depurar en la URL.
@@ -165,7 +171,7 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
       promesaAnimacion.then((a) => a.liberar()).catch(() => {});
       animacionRef.current = null;
     };
-  }, [proyecto, estado.intento, aplicarResultado, modoForzado, depurar]);
+  }, [proyecto, estado.intento, aplicarResultado, modoForzado, depurar, alCuadro]);
 
   useMantenerPantallaEncendida(estado.fase !== 'error');
 
@@ -207,6 +213,8 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
       {/* La sesión inserta aquí la cámara y el lienzo WebGL (fuera del control de React). */}
       <div ref={escenaRef} className="ra-escena" />
 
+      {info && <InfoFlotante info={info} receptorRef={receptorRef} zonaUtil={zonaUtil} alAbrir={abrirHoja} oculto={hojaAbierta} />}
+
       <div
         className={`ra-guia ${estado.fase === 'detectado' || estado.fase === 'cargando' || estado.fase === 'error' ? 'ra-guia--oculta' : ''}`}
         aria-hidden="true"
@@ -218,7 +226,7 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
       </div>
 
       <div className="ra-interfaz">
-        <header className="ra-barra-sup">
+        <header className="ra-barra-sup" ref={barraSupRef}>
           <button type="button" className="ra-boton-icono" onClick={cerrar} aria-label="Cerrar cámara">
             <IconoCerrar />
           </button>
@@ -231,7 +239,7 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
           )}
         </header>
 
-        <div className="ra-barra-inf">
+        <div className="ra-barra-inf" ref={barraInfRef}>
           {estado.advertencia && import.meta.env.DEV && <p className="ra-advertencia">⚠ {estado.advertencia}</p>}
           <EstadoVisible estado={estado} proyecto={proyecto} />
           {estado.fase !== 'cargando' && estado.fase !== 'error' && (
@@ -267,6 +275,8 @@ function ExperienciaRA({ proyecto }: { proyecto: ProyectoCatalogo }) {
           )}
         </div>
       </div>
+
+      {hojaAbierta && info && <HojaInfo info={info} rutaProyecto={rutaProyecto(proyecto.slug)} alCerrar={cerrarHoja} />}
 
       {estado.fase === 'cargando' && <PanelCarga progreso={estado.progreso} />}
 

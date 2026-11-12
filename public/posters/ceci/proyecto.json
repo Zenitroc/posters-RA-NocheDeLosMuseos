@@ -1,0 +1,26 @@
+{
+  "nombre": "CECI",
+  "subtitulo": "Compañero de Estimulación Cognitiva Invisible",
+  "descripcion": "Proyecto final de UTN FRBA: un compañero de estimulación cognitiva invisible para el acompañamiento integral de adultos mayores con deterioro cognitivo.",
+  "equipo": [
+    "Tomás Garais",
+    "Gabriel Montenegro Aguilar",
+    "Federico Báez",
+    "Santiago Romano"
+  ],
+  "orden": 9,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "CeciAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

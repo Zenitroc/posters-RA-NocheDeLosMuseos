@@ -47,9 +47,12 @@ function render(ctx, t) {
     ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.strokeStyle = rgba([25, 40, 70], 0.75 * g * Math.sin(Math.PI * q)); ctx.stroke();
   }
 
-  // ---- Camión: suspensión y vibración (recorte real del póster)
-  const bote = 2.4 * Math.sin(t * 11) + 1.2 * Math.sin(t * 17.3 + 1);
-  const cabeceo = 0.0035 * Math.sin(t * 2.3) + 0.0018 * Math.sin(t * 11);
+  // ---- Camión: suspensión y vibración. Es un recorte con la silueta del camión (sin cielo ni ruta) que
+  // se mueve sobre una "placa limpia" (el póster con el camión borrado), así no quedan fantasmas del
+  // original. Los nodos y líneas de la UI quedan fuera de la máscara: siguen fijos, como en el impreso.
+  const bote = 1.3 * Math.sin(t * 11) + 0.6 * Math.sin(t * 17.3 + 1);
+  const cabeceo = 0.0022 * Math.sin(t * 2.3) + 0.0009 * Math.sin(t * 11);
+  sprite(ctx, 'fondoCamion', 0, 0, 1, 0, g);
   sprite(ctx, 'camion', 0, bote * g, 1, cabeceo * g, 1, 480, 985);
 
   // ---- Ruta: ráfagas de velocidad (de izquierda a derecha) fuera de píldoras y líneas

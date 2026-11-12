@@ -22,21 +22,35 @@ La animación de cada póster puede ser:
 El proyecto **ZonAR** usa sus recursos definitivos: póster original (1131×1600), capa
 `ZonarAnim` y MP4 de respaldo. El código fuente de su animación está en `recursos-fuente/zonar/`.
 
-**AgroLink, Arbiter, INFRABOT y VictoriaX** también tienen capa Canvas + MP4 de respaldo. Sus
+**AgroLink, Arbiter, INFRABOT, VictoriaX, DrHero, PreTriage, Adaliza y CECI** también tienen capa Canvas + MP4 de respaldo. Sus
 animaciones están en `recursos-fuente/<slug>/animacion.js` (utilidades comunes en
 `recursos-fuente/_comun/efectos.js`) y los pósters originales en `recursos-fuente/<slug>/original/`.
 Mueven **recortes reales del póster** (el camión, la foto de la sala, el robot, las ilustraciones;
 se declaran en `recursos-fuente/<slug>/sprites.json`) y le suman fondos en movimiento (nubes, papeles,
 luces, burbujas) y efectos sobre los elementos del diseño.
+Un recorte puede llevar **silueta** (polígono o automática separando el fondo claro) y una **placa
+limpia** (`limpiarSprite`: el póster con la figura borrada por inpainting), así una figura se mueve sin
+dejar fantasmas del impreso; también se pueden borrar partes (`limpiar`) para animarlas aparte, como los
+ojos que guiñan en Adaliza. El formato está documentado en `recursos-fuente/construir.mjs`.
 Para regenerar tras ajustar una animación:
 
 ```bash
 node recursos-fuente/construir.mjs capa  agrolink          # → public/posters/agrolink/capa.js
 node recursos-fuente/construir.mjs video agrolink          # → animacion.mp4 (H.264 vía WebCodecs en Chromium)
 node recursos-fuente/construir.mjs stills agrolink 2.2 5   # PNG de prueba en salida/stills/
+node recursos-fuente/construir.mjs sprites agrolink         # cada recorte en PNG, para revisarlos
 ```
 
 ---
+
+### Más información junto al póster
+
+Si el `proyecto.json` tiene `masInfo` (lista de párrafos, o un texto con párrafos separados por una
+línea en blanco), al reconocer el póster aparece una **tarjeta flotante** que lo sigue en pantalla: se
+ubica sola en el espacio libre a su costado (o arriba/abajo) unida al póster por una línea. Si el póster
+ocupa toda la pantalla se reduce a un chip "Más sobre …" en su esquina; tocándolo (o "Más info") se abre
+el texto completo sin salir de la cámara. Sin `masInfo` se usa la `descripcion`. El texto también se
+muestra en la página del proyecto.
 
 ## Rutas del sitio
 

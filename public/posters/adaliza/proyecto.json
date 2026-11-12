@@ -1,0 +1,31 @@
+{
+  "nombre": "Adaliza",
+  "subtitulo": "Evaluamos talento. Potenciamos futuro.",
+  "descripcion": "Proyecto final de UTN FRBA para selección inteligente de talento: role play asistido por IA, evaluación automática de entregables, puntajes objetivos por dimensión e interacción en tiempo real.",
+  "masInfo": [
+    "Cuando alguien se postula a un trabajo en tecnología, muchas veces le piden que resuelva un ejercicio en su casa. Hoy cualquiera puede pedirle a una inteligencia artificial que lo haga por él, así que la empresa no sabe quién hizo el trabajo de verdad. Adaliza propone otra forma de evaluar: la persona resuelve un caso parecido a un día real de trabajo y conversa con un asistente virtual que hace de compañero o de cliente. El asistente no le da toda la información de entrada, así que, como en la vida real, hay que saber qué preguntar.",
+    "Al final, Adaliza no mira solo el resultado. También muestra cómo se llegó a él: qué preguntó la persona, cómo se comunicó y qué decisiones tomó. Así, las empresas pueden conocer cómo trabaja alguien y no solo lo que sabe. Cada evaluación queda respaldada con pruebas concretas y se cuida la privacidad de todas las personas."
+  ],
+  "equipo": [
+    "Carolina Castellucci",
+    "Julia D'Alessio Poisson",
+    "Matias Hermida",
+    "Matias Pereda",
+    "Rodrigo Putrino"
+  ],
+  "orden": 8,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "AdalizaAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}
