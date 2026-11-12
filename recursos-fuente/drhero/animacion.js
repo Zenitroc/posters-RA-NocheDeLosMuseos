@@ -1,13 +1,58 @@
 /*
  * DrHero · capa animada. Coordenadas de diseño 990×1400 (póster 1131×1600).
- * Todo son efectos sobre el póster impreso (sin recortes): la lámpara de quirófano late y proyecta un haz,
+ * SALE DEL PAPEL (el lienzo se extiende un 30 % por lado): el cirujano se despega del póster y se asoma
+ * hacia vos; el celular de "Mis honorarios" salta fuera del papel tres veces, rotando, y en lo más alto
+ * suelta una lluvia de monedas con el pago registrado; los cuatro pilares de abajo saltan fuera del papel.
+ * Además, efectos sobre el impreso: la lámpara de quirófano late y proyecta un haz,
  * los electrocardiogramas laten, el título se barre con un destello, el tablero se enciende (tarjetas,
  * liquidaciones, gráficos que giran, monto del celular) y los cuatro pilares inferiores se activan en
  * secuencia (OCR con barrido de escáner, offline, cálculo, reportes). Fondo con haces de velocidad.
  */
-const W = 1131, H = 1600, DW = 990, DH = 1400, DUR = 10;
+const W = 1131, H = 1600, DW = 990, DH = 1400, DUR = 14, MARGEN = 0.3;
 const BLUE = [30, 100, 255], CYAN = [90, 190, 255], NAVY = [20, 50, 140], WHITE = [255, 255, 255], MINT = [60, 210, 150], ORANGE = [255, 150, 70];
-const G = t => env(t, 0.3, 1.0, 8.9, 9.7);
+const G = t => env(t, 0.3, 1.0, 12.9, 13.6);
+
+// ---- Cirujano: se despega y se asoma hacia afuera (pivote abajo a la izquierda)
+const asoma = t => env(t, 1.4, 2.2, 4.4, 5.2);
+
+// ---- Celular: salta fuera del papel y rota (centro 873, 948). Tres saltos; en el punto más alto suelta
+// monedas y aparece el pago registrado.
+const CEL = [873, 948];
+const SALTOS = [
+  { t0: 5.2, dur: 1.3, h: 300, giro: TAU, sc: 1.5, pago: '+$ 185.000' },
+  { t0: 7.0, dur: 1.2, h: 230, giro: -TAU, sc: 1.4, pago: '+$ 210.000' },
+  { t0: 8.8, dur: 1.6, h: 360, giro: 2 * TAU, sc: 1.6, pago: '+$ 162.500' },
+];
+const T_CEL = [5.0, 10.6];
+
+function celular(t) {
+  let dy = 0, rot = 0, sc = 1, sy = 1, aire = 0, salto = null;
+  for (const s of SALTOS) {
+    const k = (t - s.t0) / s.dur;
+    if (k > 0 && k < 1) {
+      dy = -s.h * 4 * k * (1 - k); rot = s.giro * easeInOut(k); sc = 1 + (s.sc - 1) * Math.sin(Math.PI * k);
+      aire = Math.sin(Math.PI * k); salto = { ...s, k };
+    } else if (k >= 1 && k < 1.6) {
+      // aterrizaje elástico: se aplasta y rebota
+      const q = (k - 1) / 0.6;
+      sy = 1 - 0.14 * Math.sin(Math.PI * q * 3) * (1 - q);
+    }
+  }
+  const alto = env(t, T_CEL[0], T_CEL[0] + 0.25, T_CEL[1] - 0.3, T_CEL[1]);
+  return { dy: dy - 10 * alto, rot, sc: sc * (1 + 0.05 * alto), sy, aire, alto, salto };
+}
+
+/** Moneda dorada con "$". */
+function moneda(ctx, x, y, r, giro, a) {
+  if (a <= 0.01) return;
+  ctx.save(); ctx.translate(x, y); ctx.scale(Math.max(0.15, Math.abs(Math.cos(giro))), 1); ctx.globalAlpha = clamp(a);
+  const gr = ctx.createRadialGradient(-r * 0.3, -r * 0.3, 1, 0, 0, r);
+  gr.addColorStop(0, '#fff3b0'); gr.addColorStop(0.6, '#f5c542'); gr.addColorStop(1, '#c8901a');
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fillStyle = gr; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = '#a8740f'; ctx.stroke();
+  ctx.fillStyle = '#8a5d06'; ctx.font = `800 ${r * 1.2}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('$', 0, 1);
+  ctx.restore();
+}
 
 const ECG_L = polyline([[0, 398], [52, 398], [62, 372], [72, 340], [84, 398], [94, 362], [104, 398], [118, 398]]);
 const ECG_R = polyline([[838, 193], [872, 193], [880, 150], [892, 225], [905, 175], [918, 200], [938, 193]]);
@@ -45,7 +90,12 @@ function donut(ctx, x, y, R, r, base, cols, bg, t, grow0, amp, a) {
 function render(ctx, t) {
   t = ((t % DUR) + DUR) % DUR;
   const g = G(t);
+  if (g <= 0.002) return;
   begin(ctx, W, H, DW, DH);
+  const cel = celular(t), sa = asoma(t) * g;
+  // Placas limpias de lo que sale del papel
+  if (sa > 0.001) sprite(ctx, 'fondoCirujano');
+  if (cel.aire > 0.001) sprite(ctx, 'fondoCelular');
   const ph = t / DUR * TAU;
 
   // ---- Haces de velocidad que cruzan el fondo celeste (de abajo-izquierda a arriba-derecha)
@@ -108,7 +158,7 @@ function render(ctx, t) {
   // Gráficos de torta redibujados sobre los impresos: se llenan y luego respiran con datos "en vivo"
   const gd = g * smooth(1.2, 1.8, t);
   donut(ctx, 726.5, 914, 30.5, 15.5, [0.17, 0.13, 0.12, 0.13, 0.12, 0.11, 0.11, 0.11], DONUT_L, [238, 244, 250], t, 1.6, 0.35, gd);
-  donut(ctx, 863, 965, 29, 9.5, [0.36, 0.26, 0.20, 0.18], DONUT_P, [247, 248, 252], t, 1.9, 0.3, gd);
+  donut(ctx, 863, 965, 29, 9.5, [0.36, 0.26, 0.20, 0.18], DONUT_P, [247, 248, 252], t, 1.9, 0.3, gd * (1 - cel.alto));
   glowDot(ctx, 726.5, 914, 52, CYAN, 0.22 * g * pul);
 
   // Contadores: tapan el número impreso y lo cuentan hasta su valor
@@ -124,8 +174,8 @@ function render(ctx, t) {
   cnt(511, 794, 30, 22, [237, 243, 251], 48, 18, 513, String, 1.6);
   cnt(603, 794, 88, 22, [235, 243, 250], 5842300, 17, 606, n => '$ ' + miles(n), 1.9);
   cnt(715, 794, 26, 22, [233, 241, 251], 12, 18, 718, String, 2.2);
-  cnt(820, 898, 104, 27, [247, 248, 252], 1245000, 19, 826, n => '$ ' + miles(n), 2.5);
-  sparkle(ctx, 905, 905, 18, WHITE, g * env(t, 4.6, 5.0, 5.3, 5.9));
+  if (cel.alto < 0.01) cnt(820, 898, 104, 27, [247, 248, 252], 1245000, 19, 826, n => '$ ' + miles(n), 2.5);
+  sparkle(ctx, 905, 905, 18, WHITE, g * env(t, 3.6, 4.0, 4.3, 4.9));
   sparkle(ctx, 626, 800, 18, WHITE, g * env(t, 5.8, 6.2, 6.5, 7.1));
 
   // ---- Pilares inferiores
@@ -141,7 +191,43 @@ function render(ctx, t) {
   // Reportes: destello en la flecha
   sparkle(ctx, 838, 1100, 22, WHITE, g * env(t, 6.0, 6.4, 6.8, 7.4));
 
+  // ---- El cirujano se despega del papel y se asoma hacia vos (crece desde abajo a la izquierda)
+  if (sa > 0.001) {
+    despegar(ctx, 'cirujano', { alto: sa, hueco: sa, sx: 1 + 0.16 * sa, sy: 1 + 0.16 * sa, dx: -40 * sa, dy: -10 * sa, rot: -0.05 * sa + 0.03 * Math.sin(t * 3) * sa, px: 60, py: 900 });
+    // Gesto de "todo bajo control": guiño de luz en los anteojos
+    sparkle(ctx, 250 - 40 * sa, 440 - 60 * sa, 24, WHITE, g * env(t, 2.6, 2.9, 3.1, 3.6));
+  }
+
+  // ---- El celular salta fuera del papel, rota y suelta monedas en lo más alto
+  if (cel.alto > 0.001) {
+    despegar(ctx, 'celular', {
+      alto: Math.max(0.35 * cel.alto, cel.aire) * g, hueco: cel.aire * g,
+      dy: cel.dy + 130 * (1 - cel.sy), sx: cel.sc, sy: cel.sc * cel.sy, rot: cel.rot, px: CEL[0], py: CEL[1], // aplastado desde la base
+    });
+    SALTOS.forEach((s, n) => {
+      const ta = s.t0 + s.dur / 2, q = t - ta;
+      if (q < 0 || q > 1.4) return;
+      const ay = CEL[1] - s.h;
+      for (let i = 0; i < 14; i++) {
+        const ang = (i / 14) * TAU + n, v = 260 + rnd(i, n) * 160;
+        moneda(ctx, CEL[0] + Math.cos(ang) * v * q, ay + Math.sin(ang) * v * q * 0.8 + 420 * q * q, 13, t * 8 + i, g * (1 - q / 1.4));
+      }
+      const k = clamp(q / 0.3);
+      chip(ctx, CEL[0] - 290, ay - 150, 270, 48, 'Pago registrado', s.pago, [40, 200, 120], g * env(q, 0, 0.2, 1.0, 1.4), k);
+    });
+    glowDot(ctx, CEL[0], CEL[1] + cel.dy, 130, [90, 190, 255], 0.22 * cel.aire * g);
+  }
+  chip(ctx, 640, 760, 300, 48, 'Mis honorarios', '$ 1.802.500 (+3 pagos)', [40, 200, 120], g * env(t, 11.8, 12.2, 12.7, 13.0), clamp((t - 11.8) / 0.6));
+
+  // ---- Pilares: saltan fuera del papel en secuencia
+  [[1, 153], [2, 372], [3, 593], [4, 818]].forEach(([n, x]) => {
+    const t0 = 2.4 + n * 0.5 + (n > 2 ? 6.2 : 0), k = clamp((t - t0) / 0.9), s = Math.sin(Math.PI * k) * g;
+    if (k <= 0 || k >= 1) return;
+    sprite(ctx, 'fondoPilar' + n);
+    despegar(ctx, 'pilar' + n, { alto: s, hueco: 0.4 * s, dy: -80 * s, sx: 1 + 0.35 * s, sy: 1 + 0.35 * s, rot: 0.3 * Math.sin(TAU * k), px: x, py: 1170 });
+  });
+
   ctx.restore();
 }
 
-const load = () => Promise.resolve();
+const load = () => loadSprites(SPRITES_SRC);

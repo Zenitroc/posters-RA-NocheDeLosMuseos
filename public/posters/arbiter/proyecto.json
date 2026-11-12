@@ -21,7 +21,8 @@
     "canvas": {
       "global": "ArbiterAnim",
       "ancho": 1131,
-      "alto": 1600
+      "alto": 1600,
+      "ladoMaximo": 1536
     }
   }
 }

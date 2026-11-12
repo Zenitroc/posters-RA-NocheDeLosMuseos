@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ProyectoCatalogo } from '../proyectos/modelo.ts';
-import { obtenerApiCapa } from '../ra/capa-canvas.ts';
+import { margenCapa, obtenerApiCapa } from '../ra/capa-canvas.ts';
 import { IconoPausa, IconoPlay, IconoRepetir } from './Iconos.tsx';
 
 interface Props {
@@ -42,6 +42,10 @@ export function CapaSobrePoster({ proyecto, fondo = 'poster', etiqueta }: Props)
       const ancho = api.WIDTH ?? animacion.canvas.ancho ?? poster?.naturalWidth ?? 1000;
       const alto = api.HEIGHT ?? animacion.canvas.alto ?? poster?.naturalHeight ?? 1414;
       const duracion = api.DURATION ?? 10;
+      // Con margen, el póster ocupa el centro del lienzo y alrededor se ve "la pared".
+      const m = margenCapa(api);
+      const px = (ancho * m) / (1 + 2 * m);
+      const py = (alto * m) / (1 + 2 * m);
       const escala = Math.min(1, LADO_MAXIMO / Math.max(ancho, alto));
       lienzo.width = Math.round(ancho * escala);
       lienzo.height = Math.round(alto * escala);
@@ -55,7 +59,13 @@ export function CapaSobrePoster({ proyecto, fondo = 'poster', etiqueta }: Props)
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, lienzo.width, lienzo.height);
         ctx.setTransform(escala, 0, 0, escala, 0, 0);
-        if (poster) ctx.drawImage(poster, 0, 0, ancho, alto);
+        if (poster) {
+          if (m) {
+            ctx.fillStyle = '#2a2a30';
+            ctx.fillRect(0, 0, ancho, alto);
+          }
+          ctx.drawImage(poster, px, py, ancho - 2 * px, alto - 2 * py);
+        }
         try {
           ctx.save();
           api.render(ctx, t);

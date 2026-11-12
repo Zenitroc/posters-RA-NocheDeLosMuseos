@@ -20,6 +20,17 @@ export interface ApiCapa {
   WIDTH?: number;
   HEIGHT?: number;
   DURATION?: number;
+  /**
+   * Margen alrededor del póster (fracción por lado). Con margen, WIDTH × HEIGHT es el lienzo completo
+   * y el póster ocupa el centro: WIDTH / (1 + 2·MARGIN) × HEIGHT / (1 + 2·MARGIN).
+   */
+  MARGIN?: number;
+}
+
+/** Margen válido declarado por una capa (0 si no declara o es inválido). */
+export function margenCapa(api: Pick<ApiCapa, 'MARGIN'>): number {
+  const m = api.MARGIN;
+  return typeof m === 'number' && Number.isFinite(m) && m > 0 && m <= 1 ? m : 0;
 }
 
 const TIEMPO_MAXIMO_CARGA = 15000;
@@ -113,6 +124,7 @@ export class AnimacionCanvas implements Animacion {
   private alto = 0;
   private escala = 1;
   private duracion = 0;
+  private margenCapa = 0;
   private readonly emisor = new Emisor();
   private liberado = false;
   private fallida = false;
@@ -135,6 +147,10 @@ export class AnimacionCanvas implements Animacion {
 
   get proporcion(): number {
     return this.ancho / this.alto;
+  }
+
+  get margen(): number {
+    return this.margenCapa;
   }
 
   get pausado(): boolean {
@@ -167,6 +183,7 @@ export class AnimacionCanvas implements Animacion {
       this.ancho = ancho;
       this.alto = alto;
       this.duracion = duracion;
+      this.margenCapa = margenCapa(api);
 
       // Textura más chica que el póster: la cámara rara vez muestra más detalle,
       // y subir menos píxeles por cuadro es clave en celulares de gama media.

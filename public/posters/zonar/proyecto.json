@@ -2,7 +2,16 @@
   "nombre": "ZonAR",
   "subtitulo": "Hacé visible el ruido",
   "descripcion": "Proyecto final de UTN FRBA que visualiza los niveles de ruido urbano: mediciones en tiempo real, mapas de contaminación sonora, recomendaciones de rutas silenciosas y generación de reportes.",
-  "equipo": ["Abril Caruso", "Micaela Gobbi", "Gabriel Montenegro", "Mora Hidalgo"],
+  "masInfo": [
+    "ZonAR es un sistema de gestión, registro y monitoreo de los niveles de contaminación acústica en entornos urbanos, orientado a la Ciudad Autónoma de Buenos Aires. La plataforma permite a los ciudadanos registrar y reportar mediciones de ruido mediante sus dispositivos móviles, complementando esta información con datos obtenidos a través de sensores acústicos distribuidos estratégicamente en la ciudad.",
+    "A partir de estos datos, el sistema ofrece mapas interactivos que permiten visualizar la distribución de los niveles sonoros. Asimismo, brinda la posibilidad de configurar alertas personalizadas ante niveles de ruido que superen determinados umbrales y de generar rutas alternativas que prioricen recorridos con menor contaminación acústica. De esta manera, ZonAR busca facilitar el acceso a información ambiental y contribuir a mejorar la calidad de vida en los entornos urbanos."
+  ],
+  "equipo": [
+    "Abril Caruso",
+    "Micaela Gobbi",
+    "Gabriel Montenegro",
+    "Mora Hidalgo"
+  ],
   "orden": 1,
   "activo": true,
   "demo": false,

@@ -16,6 +16,11 @@ export interface Animacion {
   readonly transparente: boolean;
   /** ancho/alto del contenido (válido después de cargar()). */
   readonly proporcion: number;
+  /**
+   * Margen alrededor del póster que ocupa la animación, como fracción de su ancho/alto por lado
+   * (0 = cubre justo el póster). Permite que los elementos "salgan del papel" hacia la pared.
+   */
+  readonly margen?: number;
   /** Elemento que debe estar en el DOM mientras dura la sesión (el <video> en iOS), o null. */
   readonly elemento: HTMLElement | null;
   readonly pausado: boolean;

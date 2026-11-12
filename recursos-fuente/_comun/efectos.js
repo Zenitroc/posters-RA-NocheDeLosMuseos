@@ -131,8 +131,18 @@ function wifi(ctx, x, y, t, start, end, color, a, scale = 1, period = 1.6) {
   });
 }
 
-/** Marco del contexto: aplica la escala de diseño → píxeles del póster. */
-function begin(ctx, W, H, DW, DH) { ctx.save(); ctx.scale(W / DW, H / DH); }
+/**
+ * Marco del contexto: aplica la escala de diseño → píxeles del póster. Si la animación declara
+ * `const MARGEN = 0.3` (fracción por lado), el lienzo es más grande que el póster y el origen se corre
+ * al borde del póster: las coordenadas de diseño siguen siendo las del póster y lo negativo o mayor
+ * que DW/DH queda "afuera del papel".
+ */
+function begin(ctx, W, H, DW, DH) {
+  ctx.save();
+  const m = typeof MARGEN !== 'undefined' ? MARGEN : 0;
+  if (m) ctx.translate(W * m, H * m);
+  ctx.scale(W / DW, H / DH);
+}
 
 /* ------------------------------------------------------------------------------------------------
  * Sprites: recortes del póster original (los inyecta construir.mjs en SPRITES_SRC) que se mueven
@@ -232,4 +242,70 @@ function chip(ctx, x, y, w, h, etiqueta, valor, color, a, k = 1) {
   ctx.fillStyle = '#fff'; ctx.font = '700 20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
   ctx.fillText(valor, x + h + 2, y + h * 0.68);
   ctx.restore();
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * "Salir del papel": un recorte se despega del póster. Deja su hueco (sombra interior, como un
+ * recorte en el papel) y, mientras está levantado, proyecta sombra sobre el póster o la pared.
+ * Requiere que construir.mjs haya generado <base>Hueco y <base>Sombra ("sombras": true).
+ * ---------------------------------------------------------------------------------------------- */
+
+/**
+ * o = { dx, dy, sx, sy, rot, px, py, a } como en spriteT, más:
+ *   alto: 0..1 cuánto se levantó (sombra más corrida y difusa), hueco: 0..1 opacidad del hueco,
+ *   base: nombre de las sombras si difiere del recorte.
+ */
+function despegar(ctx, name, o = {}) {
+  const s = SPR[name]; if (!s) return;
+  const base = o.base ?? name, alto = clamp(o.alto ?? 0), a = o.a ?? 1;
+  if ((o.hueco ?? 0) > 0.01) sprite(ctx, base + 'Hueco', 0, 0, 1, 0, o.hueco); // el hueco queda aunque el recorte no se vea
+  const px = o.px ?? s.x + s.w / 2, py = o.py ?? s.y + s.h / 2;
+  if (alto > 0.01 && SPR[base + 'Sombra']) {
+    spriteT(ctx, base + 'Sombra', { ...o, px, py, dx: (o.dx ?? 0) + 16 * alto, dy: (o.dy ?? 0) + 26 * alto, a: a * Math.min(1, alto * 1.6) * 0.85 });
+  }
+  spriteT(ctx, name, { ...o, px, py });
+}
+
+/** Paso de caminata (títere de papel): rebote vertical y balanceo. f = pasos por segundo. */
+function caminata(t, f = 2.2, amp = 1) {
+  const fase = t * f * Math.PI;
+  return { bote: -Math.abs(Math.sin(fase)) * 9 * amp, balanceo: Math.sin(fase) * 0.07 * amp };
+}
+
+/** Sombra elíptica en el "piso" (pies de quien camina fuera del papel). */
+function sombraPiso(ctx, x, y, w, a) {
+  if (a <= 0.01) return;
+  ctx.save(); ctx.translate(x, y); ctx.scale(1, 0.22);
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, w / 2);
+  g.addColorStop(0, `rgba(0,0,0,${clamp(a * 0.45)})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, w / 2, 0, TAU); ctx.fill(); ctx.restore();
+}
+
+/** Recorrido con dirección: at(s) → { x, y, dx, dy } (dx, dy: dirección unitaria). */
+function recorrido(points) {
+  const pl = polyline(points);
+  return {
+    total: pl.total,
+    at(s) {
+      const [x, y] = pl.at(s), [x0, y0] = pl.at(s - 4), [x1, y1] = pl.at(s + 4);
+      const l = Math.hypot(x1 - x0, y1 - y0) || 1;
+      return { x, y, dx: (x1 - x0) / l, dy: (y1 - y0) / l };
+    },
+  };
+}
+
+/** Redondea las esquinas de un recorrido poligonal (para giros suaves). */
+function esquinasSuaves(points, r = 80, pasos = 6) {
+  const out = [points[0]];
+  for (let i = 1; i < points.length - 1; i++) {
+    const [ax, ay] = points[i - 1], [bx, by] = points[i], [cx, cy] = points[i + 1];
+    const l1 = Math.hypot(bx - ax, by - ay), l2 = Math.hypot(cx - bx, cy - by), rr = Math.min(r, l1 / 2, l2 / 2);
+    const p0 = [bx + (ax - bx) * rr / l1, by + (ay - by) * rr / l1], p2 = [bx + (cx - bx) * rr / l2, by + (cy - by) * rr / l2];
+    for (let k = 0; k <= pasos; k++) {
+      const u = k / pasos, v = 1 - u;
+      out.push([v * v * p0[0] + 2 * v * u * bx + u * u * p2[0], v * v * p0[1] + 2 * v * u * by + u * u * p2[1]]);
+    }
+  }
+  out.push(points[points.length - 1]);
+  return out;
 }

@@ -32,6 +32,14 @@ Un recorte puede llevar **silueta** (polígono o automática separando el fondo 
 limpia** (`limpiarSprite`: el póster con la figura borrada por inpainting), así una figura se mueve sin
 dejar fantasmas del impreso; también se pueden borrar partes (`limpiar`) para animarlas aparte, como los
 ojos que guiñan en Adaliza. El formato está documentado en `recursos-fuente/construir.mjs`.
+
+**Salir del papel.** Si una animación declara `const MARGEN = 0.3`, su lienzo se extiende un 30 % por
+lado alrededor del póster (la RA agranda el plano en la misma proporción): los personajes pueden salir
+a "la pared" (el camión de AgroLink avanza hacia vos y pasa por detrás del póster, el paciente de PreTriage camina hasta la
+guardia, el robot de INFRABOT vuela, el celular de DrHero salta y rota, los documentos de Arbiter se sellan
+afuera). Con `"sombras": true` en `sprites.json` se generan el hueco que deja el recorte en el papel y
+su sombra proyectada; `despegar()` (en `_comun/efectos.js`) los usa. El MP4 de respaldo queda recortado
+al póster; la vista sin RA muestra el lienzo completo.
 Para regenerar tras ajustar una animación:
 
 ```bash

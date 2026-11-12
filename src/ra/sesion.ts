@@ -347,7 +347,9 @@ export class SesionRA {
     textura.offset.set(ajuste.textura.desplazarX, ajuste.textura.desplazarY);
 
     const material = animacion.transparente ? crearMaterialTransparente(textura) : crearMaterialOpaco(textura);
-    const geometria = new PlaneGeometry(ajuste.plano.ancho, ajuste.plano.alto);
+    // Una capa con margen se extiende alrededor del póster (lo que "sale del papel"): plano más grande, mismo centro.
+    const extension = 1 + 2 * (animacion.margen ?? 0);
+    const geometria = new PlaneGeometry(ajuste.plano.ancho * extension, ajuste.plano.alto * extension);
     const plano = new Mesh(geometria, material);
     plano.position.set(ajuste.posicion.x, ajuste.posicion.y, 0);
     ancla.add(plano);

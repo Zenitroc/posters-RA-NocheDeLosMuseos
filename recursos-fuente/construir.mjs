@@ -43,11 +43,15 @@ const [modo, ...resto] = positionals;
  *   pluma: [izq, arr, der, aba]  difuminado de bordes del rectángulo (al cargar)
  *   zona: [[x, y], ...]      silueta (polígono). Sin `auto`, es la máscara del recorte.
  *   auto: umbral (0..255)    máscara automática: lo que NO es fondo claro conectado al borde (∩ zona)
+ *         o { claro, colores: [[r,g,b]...], tol }: además cuentan como fondo los colores dados (± tol)
  *   huecos: [forma, ...]     se restan de la máscara (forma = polígono [[x,y],...] o círculo [x, y, r])
  *   dilatar, suavizar        crecimiento y desenfoque de la máscara (unidades de diseño)
  *   limpiar: [forma, ...]    zonas que se rellenan con el entorno (inpainting) antes de recortar
  *   limpiarSprite: nombre    rellena la máscara de otro recorte (placa limpia detrás de algo que se mueve)
  *   margen                   crecimiento extra de esa máscara al limpiar (por defecto 3)
+ *   soloMascara: true        no se publica (sólo sirve de máscara para limpiarSprite o para sus sombras)
+ *   sombras: true            genera además <nombre>Hueco (sombra interior del hueco que deja en el papel
+ *                            al salir) y <nombre>Sombra (sombra proyectada al "levantarse" del papel)
  */
 async function recortes(slug) {
   const archivo = join(FUENTE, slug, 'sprites.json');
@@ -123,8 +127,14 @@ async function procesarRecortes({ defs, poster }) {
     let m = new Float32Array(IW * IH);
     if (d.auto != null) {
       // Fondo = píxeles claros conectados al borde del rectángulo (o a lo que queda fuera de la zona)
-      const u = d.auto, fondo = new Uint8Array(IW * IH), cola = [];
-      const claro = i => Math.min(pix[i * 4], pix[i * 4 + 1], pix[i * 4 + 2]) >= u;
+      const a = typeof d.auto === 'number' ? { claro: d.auto, colores: [], tol: 0 } : { claro: 256, colores: [], tol: 30, ...d.auto };
+      const fondo = new Uint8Array(IW * IH), cola = [];
+      const claro = i => {
+        const r = pix[i * 4], g = pix[i * 4 + 1], b = pix[i * 4 + 2];
+        if (Math.min(r, g, b) >= a.claro) return true;
+        for (const c of a.colores) if (Math.hypot(r - c[0], g - c[1], b - c[2]) <= a.tol) return true;
+        return false;
+      };
       const sembrar = (x, y) => { const i = y * IW + x; if (!fondo[i] && (claro(i) || (zona && !zona[i]))) { fondo[i] = 1; cola.push(i); } };
       for (let x = x0; x < x1; x++) { sembrar(x, y0); sembrar(x, y1 - 1); }
       for (let y = y0; y < y1; y++) { sembrar(x0, y); sembrar(x1 - 1, y); }
@@ -216,7 +226,9 @@ async function procesarRecortes({ defs, poster }) {
       c.getContext('2d').putImageData(new ImageData(rgba, IW, IH), 0, 0);
       fuente = c;
     }
-    const pw = Math.round(w * k), ph = Math.round(h * k);
+    // Las placas limpias son difusas por naturaleza: a media resolución pesan 4 veces menos.
+    const res = alfaHueco ? 0.5 : 1;
+    const pw = Math.round(w * k * res), ph = Math.round(h * k * res);
     const c = document.createElement('canvas'); c.width = pw; c.height = ph;
     const cx = c.getContext('2d');
     cx.drawImage(fuente, x * k, y * k, w * k, h * k, 0, 0, pw, ph);
@@ -229,9 +241,38 @@ async function procesarRecortes({ defs, poster }) {
       }
       cx.putImageData(id, 0, 0);
     }
-    out[nombre] = { x, y, w, h, pw, ph, feather: d.pluma ?? [0, 0, 0, 0], src: m ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.9) };
+    out[nombre] = { x, y, w, h, pw, ph, feather: d.pluma ?? [0, 0, 0, 0], src: m ? c.toDataURL('image/webp', 0.88) : c.toDataURL('image/jpeg', 0.9) };
+    if (d.sombras && mascaras[nombre]) Object.assign(out, sombrasDe(nombre, d.r, mascaras[nombre]));
+    if (d.soloMascara) delete out[nombre];
   }
   return out;
+
+  /** Imagen (PNG) de un color con el alfa dado, recortada a un rectángulo de diseño. */
+  function imagenAlfa([x, y, w, h], alfa, [r, g, b], res = 0.5) {
+    const pw = Math.round(w * k * res), ph = Math.round(h * k * res);
+    const c = document.createElement('canvas'); c.width = pw; c.height = ph;
+    const cx = c.getContext('2d'), id = cx.createImageData(pw, ph);
+    for (let j = 0; j < ph; j++) for (let i = 0; i < pw; i++) {
+      const gx = Math.floor((x + (i / pw) * w) * k), gy = Math.floor((y + (j / ph) * h) * k), o = (j * pw + i) * 4;
+      const a = gx >= 0 && gy >= 0 && gx < IW && gy < IH ? alfa(gy * IW + gx) : 0;
+      id.data[o] = r; id.data[o + 1] = g; id.data[o + 2] = b; id.data[o + 3] = Math.round(Math.max(0, Math.min(1, a)) * 255);
+    }
+    cx.putImageData(id, 0, 0);
+    return { x, y, w, h, pw, ph, feather: [0, 0, 0, 0], src: c.toDataURL('image/webp', 0.85) };
+  }
+
+  /** Hueco (sombra interior, más marcada arriba, como un recorte en el papel) y sombra proyectada. */
+  function sombrasDe(nombre, r, m) {
+    const corrida = new Float32Array(m.length), dy = Math.round(6 * k);
+    for (let y = dy; y < IH; y++) for (let x = 0; x < IW; x++) corrida[y * IW + x] = m[(y - dy) * IW + x];
+    const borde = desenfocar(corrida, 9 * k);
+    const sombra = desenfocar(m, 8 * k);
+    const p = 30, rs = [r[0] - p, r[1] - p, r[2] + 2 * p, r[3] + 2 * p];
+    return {
+      [nombre + 'Hueco']: imagenAlfa(r, (i) => m[i] * (0.28 + (1 - borde[i]) * 1.6), [12, 14, 22]),
+      [nombre + 'Sombra']: imagenAlfa(rs, (i) => sombra[i] * 0.6, [0, 0, 0]),
+    };
+  }
 }
 
 async function codigoCapa(slug) {
@@ -242,7 +283,8 @@ async function codigoCapa(slug) {
   return (
     `/* ${slug} · capa Canvas transparente generada por recursos-fuente/construir.mjs (no editar a mano). */\n` +
     `(function (global) {\n'use strict';\n${comun}\nconst SPRITES_SRC = ${JSON.stringify(sprites)};\n${propio}\n` +
-    `global.${global} = { WIDTH: W, HEIGHT: H, DURATION: DUR, load, render };\n` +
+    `const _M = typeof MARGEN !== 'undefined' ? MARGEN : 0;\n` +
+    `global.${global} = { WIDTH: W * (1 + 2 * _M), HEIGHT: H * (1 + 2 * _M), MARGIN: _M, DURATION: DUR, load, render };\n` +
     `})(typeof window !== 'undefined' ? window : globalThis);\n`
   );
 }
@@ -289,9 +331,11 @@ if (modo === 'capa') {
     for (const t of tiempos.map(Number)) {
       for (const soloCapa of [false, true]) {
         const b64 = await pagina.evaluate(({ t, soloCapa }) => {
-          const c = document.createElement('canvas'); c.width = 1131; c.height = 1600;
+          // Con margen se ve también "la pared" alrededor del póster (lo que sale del papel).
+          const m = window.__anim.MARGIN || 0, mx = Math.round(1131 * m), my = Math.round(1600 * m);
+          const c = document.createElement('canvas'); c.width = 1131 + 2 * mx; c.height = 1600 + 2 * my;
           const x = c.getContext('2d');
-          if (!soloCapa) x.drawImage(window.__img, 0, 0, 1131, 1600);
+          if (!soloCapa) { x.fillStyle = '#6f7178'; x.fillRect(0, 0, c.width, c.height); x.drawImage(window.__img, mx, my, 1131, 1600); }
           window.__anim.render(x, t);
           return c.toDataURL('image/png').split(',')[1];
         }, { t, soloCapa });
@@ -316,7 +360,9 @@ if (modo === 'capa') {
         for (let i = 0; i < n; i++) {
           x.clearRect(0, 0, W, H);
           x.drawImage(window.__img, 0, 0, W, H);
-          x.save(); x.scale(W / 1131, 1); window.__anim.render(x, i / FPS); x.restore();
+          // El MP4 (respaldo) cubre sólo el póster: lo que sale del papel queda fuera de cuadro.
+          const m = window.__anim.MARGIN || 0;
+          x.save(); x.scale(W / 1131, 1); x.translate(-1131 * m, -1600 * m); window.__anim.render(x, i / FPS); x.restore();
           const f = new VideoFrame(c, { timestamp: Math.round((i * 1e6) / FPS), duration: Math.round(1e6 / FPS) });
           enc.encode(f, { keyFrame: i % 30 === 0 }); f.close();
           if (enc.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 5));
