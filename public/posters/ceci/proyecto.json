@@ -1,7 +1,12 @@
 {
   "nombre": "CECI",
   "subtitulo": "Compañero de Estimulación Cognitiva Invisible",
+  "premio": "2.º puesto · CoNaIISI 2026",
   "descripcion": "Proyecto final de UTN FRBA: un compañero de estimulación cognitiva invisible para el acompañamiento integral de adultos mayores con deterioro cognitivo.",
+  "masInfo": [
+    "Proyecto final de UTN FRBA: un compañero de estimulación cognitiva invisible para el acompañamiento integral de adultos mayores con deterioro cognitivo.",
+    "Premiado con el segundo lugar en el Congreso Nacional de Ingeniería Informática y Sistemas de Información 2026 (CoNaIISI)."
+  ],
   "equipo": [
     "Tomás Garais",
     "Gabriel Montenegro Aguilar",

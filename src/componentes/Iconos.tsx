@@ -153,6 +153,23 @@ export function Logo(props: Props) {
   );
 }
 
+export const IconoPremio = (p: Props) => (
+  <Base {...p}>
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11" />
+  </Base>
+);
+
+/** Distinción del proyecto (p. ej. un premio en un congreso). */
+export function Premio({ texto, className = '' }: { texto: string; className?: string }) {
+  return (
+    <span className={`premio ${className}`.trim()}>
+      <IconoPremio />
+      <span>{texto}</span>
+    </span>
+  );
+}
+
 export const IconoExpandir = (p: Props) => (
   <Base {...p}>
     <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />

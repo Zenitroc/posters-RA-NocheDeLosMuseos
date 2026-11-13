@@ -2,6 +2,10 @@
   "nombre": "VictoriaX",
   "subtitulo": "Descubrí la ingeniería, dominá la simulación",
   "descripcion": "Proyecto final de UTN FRBA con propuesta pedagógica dual: aprendizaje activo, acompañamiento docente y resoluciones validadas.",
+  "masInfo": [
+    "VictoriaX es una plataforma web educativa desarrollada por estudiantes de Ingeniería en Sistemas de Información de la Universidad Tecnológica Nacional, Facultad Regional Buenos Aires (UTN FRBA), que busca facilitar la enseñanza y el aprendizaje de simulación de sistemas. La simulación permite representar situaciones reales, analizar su comportamiento y explorar diferentes escenarios sin necesidad de experimentar directamente sobre ellos.",
+    "El proyecto surge para modernizar una herramienta utilizada anteriormente en la asignatura Simulación, que presentaba dificultades de uso y acceso. VictoriaX propone un entorno interactivo donde los estudiantes pueden construir y ejecutar simulaciones mediante diagramas de flujo, visualizar sus resultados y aprender a través de ejercicios guiados. Su objetivo es ofrecer una herramienta más accesible, intuitiva y adaptada a las necesidades de docentes y estudiantes."
+  ],
   "equipo": [
     "M. Daniela Mereles",
     "Natalia Vargas",

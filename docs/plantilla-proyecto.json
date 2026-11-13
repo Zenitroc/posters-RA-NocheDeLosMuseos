@@ -2,6 +2,7 @@
   "nombre": "Nombre del proyecto",
   "subtitulo": "Lema corto (opcional)",
   "descripcion": "Una o dos oraciones sobre el proyecto (opcional).",
+  "premio": "Distinción obtenida, p. ej. 2.º puesto · Congreso 2026 (opcional)",
   "masInfo": ["Párrafos con más información: flotan junto al póster en la realidad aumentada (opcional).", "Segundo párrafo."],
   "equipo": ["Integrante 1", "Integrante 2"],
   "orden": 10,

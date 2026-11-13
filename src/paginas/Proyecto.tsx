@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Link, useNavigation, useParams, useSearchParams } from 'react-router';
 import { Aviso } from '../componentes/Aviso.tsx';
-import { IconoCamara, IconoVideo, IconoVolver } from '../componentes/Iconos.tsx';
+import { IconoCamara, IconoVideo, IconoVolver, Premio } from '../componentes/Iconos.tsx';
 import { ImagenPoster } from '../componentes/ImagenPoster.tsx';
 import { useTitulo } from '../componentes/useTitulo.ts';
 import { buscarProyecto } from '../proyectos/catalogo.ts';
@@ -52,6 +52,7 @@ export default function PaginaProyecto() {
           <div className="proyecto__titulos">
             <h1>{proyecto.nombre}</h1>
             {proyecto.subtitulo && <p className="subtitulo">{proyecto.subtitulo}</p>}
+            {proyecto.premio && <Premio texto={proyecto.premio} />}
             {proyecto.demo && <span className="etiqueta etiqueta--demo">Recursos de demostración</span>}
           </div>
         </div>

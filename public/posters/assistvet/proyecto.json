@@ -1,0 +1,33 @@
+{
+  "nombre": "AssistVet",
+  "subtitulo": "Vos atendés. AssistVet escribe. Vos validás.",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma web que redacta el borrador del informe ecográfico veterinario a partir de lo que el profesional dicta y de las imágenes del estudio, para que lo revise, lo firme y lo envíe al instante.",
+  "masInfo": [
+    "AssistVet es una plataforma web que ayuda a los veterinarios a redactar los informes de las ecografías. Hoy, después de cada estudio, el profesional tiene que sentarse a escribir a mano lo que vio: una tarea que le quita tiempo de atención, demora la entrega del resultado a la familia de la mascota y hace que cada informe salga con un formato distinto.",
+    "Con AssistVet, el veterinario simplemente describe en voz alta lo que observa mientras hace la ecografía, y las imágenes del estudio llegan solas al sistema. Con esa información, la inteligencia artificial prepara un borrador ordenado, órgano por órgano, y señala posibles diferencias entre lo dictado y lo que muestran las imágenes.",
+    "La decisión final siempre es humana: el veterinario revisa, corrige lo que haga falta y firma el informe, que se envía al instante al dueño de la mascota con un código QR para comprobar que es auténtico. El objetivo es que el profesional dedique su tiempo al paciente y no a escribir."
+  ],
+  "equipo": [
+    "Dante Lopez",
+    "Bruno Lombardozzi",
+    "Matías Moll",
+    "Claudio Luciano Sonntag",
+    "Santiago Hamamura"
+  ],
+  "orden": 10,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "video",
+    "canvas": {
+      "global": "AssistVetAnim",
+      "ancho": 1131,
+      "alto": 1600,
+      "ladoMaximo": 1536
+    }
+  }
+}

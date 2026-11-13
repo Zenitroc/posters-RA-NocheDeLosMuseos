@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Aviso } from '../componentes/Aviso.tsx';
-import { IconoCamara, IconoEncuadre, IconoQr } from '../componentes/Iconos.tsx';
+import { IconoCamara, IconoEncuadre, IconoQr, Premio } from '../componentes/Iconos.tsx';
 import { ImagenPoster } from '../componentes/ImagenPoster.tsx';
 import { useTitulo } from '../componentes/useTitulo.ts';
 import { TEXTOS } from '../config.ts';
@@ -74,6 +74,7 @@ export default function Inicio() {
                   <div className="tarjeta__cuerpo">
                     <h3>{p.nombre}</h3>
                     {p.subtitulo && <p>{p.subtitulo}</p>}
+                    {p.premio && <Premio texto={p.premio} className="premio--chico" />}
                   </div>
                 </Link>
               </li>

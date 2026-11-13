@@ -12,6 +12,7 @@
 export interface ContenidoInfo {
   nombre: string;
   subtitulo?: string;
+  premio?: string;
   parrafos: string[];
   equipo?: string[];
 }
@@ -21,12 +22,13 @@ export function contenidoInfo(p: {
   nombre: string;
   subtitulo?: string;
   descripcion?: string;
+  premio?: string;
   masInfo?: string[];
   equipo?: string[];
 }): ContenidoInfo | null {
   const parrafos = p.masInfo?.length ? p.masInfo : p.descripcion ? [p.descripcion] : [];
   if (!parrafos.length) return null;
-  return { nombre: p.nombre, subtitulo: p.subtitulo, parrafos, equipo: p.equipo };
+  return { nombre: p.nombre, subtitulo: p.subtitulo, premio: p.premio, parrafos, equipo: p.equipo };
 }
 
 export interface Punto {

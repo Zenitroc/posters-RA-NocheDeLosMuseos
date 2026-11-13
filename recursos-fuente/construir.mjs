@@ -27,6 +27,8 @@ const PROYECTOS = {
   pretriage: { global: 'PreTriageAnim' },
   adaliza: { global: 'AdalizaAnim' },
   ceci: { global: 'CeciAnim' },
+  // El MP4 de AssistVet sale del video de IA (recursos-fuente/assistvet/componer-video.py), no de la capa.
+  assistvet: { global: 'AssistVetAnim', videoPropio: true },
 };
 
 const { values, positionals } = parseArgs({
@@ -49,6 +51,7 @@ const [modo, ...resto] = positionals;
  *   limpiar: [forma, ...]    zonas que se rellenan con el entorno (inpainting) antes de recortar
  *   limpiarSprite: nombre    rellena la máscara de otro recorte (placa limpia detrás de algo que se mueve)
  *   margen                   crecimiento extra de esa máscara al limpiar (por defecto 3)
+ *   ignorar: [forma, ...]    zonas que NO se usan como fuente al limpiar (p. ej. un pie blanco junto al hueco)
  *   soloMascara: true        no se publica (sólo sirve de máscara para limpiarSprite o para sus sombras)
  *   sombras: true            genera además <nombre>Hueco (sombra interior del hueco que deja en el papel
  *                            al salir) y <nombre>Sombra (sombra proyectada al "levantarse" del papel)
@@ -151,7 +154,7 @@ async function procesarRecortes({ defs, poster }) {
     return desenfocar(m, (d.suavizar ?? 1) * k);
   }
   /** Inpainting push-pull: rellena `hueco` (>0) con el entorno, dentro de un rectángulo con margen. */
-  function limpiar(rgba, hueco, [rx, ry, rw, rh]) {
+  function limpiar(rgba, hueco, [rx, ry, rw, rh], ignorar) {
     const mg = 40 * k;
     const x0 = Math.max(0, Math.floor(rx - mg)), y0 = Math.max(0, Math.floor(ry - mg));
     const w = Math.min(IW, Math.ceil(rx + rw + mg)) - x0, h = Math.min(IH, Math.ceil(ry + rh + mg)) - y0;
@@ -159,7 +162,7 @@ async function procesarRecortes({ defs, poster }) {
     let W = w, H = h, val = new Float32Array(W * H * 3), pes = new Float32Array(W * H);
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
       const i = (y0 + y) * IW + x0 + x, j = y * W + x;
-      if (hueco[i] > 0.001) continue;
+      if (hueco[i] > 0.001 || (ignorar && ignorar[i])) continue;
       pes[j] = 1; val[j * 3] = rgba[i * 4]; val[j * 3 + 1] = rgba[i * 4 + 1]; val[j * 3 + 2] = rgba[i * 4 + 2];
     }
     niveles.push({ W, H, val, pes });
@@ -217,7 +220,7 @@ async function procesarRecortes({ defs, poster }) {
       const rgba = new Uint8ClampedArray(pix);
       const hueco = new Float32Array(IW * IH);
       for (const hm of huecos) for (let i = 0; i < hueco.length; i++) hueco[i] = Math.max(hueco[i], hm[i]);
-      limpiar(rgba, hueco, d.r.map(v => v * k));
+      limpiar(rgba, hueco, d.r.map(v => v * k), d.ignorar ? rasterizar(d.ignorar) : null);
       if (!mascaras[nombre]) {
         const b = new Float32Array(hueco.length); for (let i = 0; i < b.length; i++) b[i] = hueco[i] > 0.001 ? 1 : 0;
         alfaHueco = desenfocar(dilatar(b, 2 * k), 1 * k);
@@ -347,6 +350,10 @@ if (modo === 'capa') {
 } else if (modo === 'video') {
   const muxerJs = readFileSync(join(RAIZ, 'node_modules/mp4-muxer/build/mp4-muxer.js'), 'utf8');
   for (const slug of resto.length ? resto : Object.keys(PROYECTOS)) {
+    if (PROYECTOS[slug].videoPropio) {
+      console.log(`video ${slug}: se omite (su animacion.mp4 no sale de la capa; ver recursos-fuente/${slug}/)`);
+      continue;
+    }
     const base64 = await conPagina(slug, async pagina => {
       await pagina.addScriptTag({ content: muxerJs });
       return pagina.evaluate(async () => {

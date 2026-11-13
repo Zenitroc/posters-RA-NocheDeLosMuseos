@@ -74,6 +74,8 @@ export interface ManifiestoProyecto {
   nombre: string;
   subtitulo?: string;
   descripcion?: string;
+  /** Distinción obtenida (p. ej. "2.º puesto · CoNaIISI 2026"): se destaca en el catálogo, la página y la RA. */
+  premio?: string;
   /** Texto ampliado (párrafos) que se muestra flotando junto al póster en la RA. */
   masInfo?: string[];
   equipo?: string[];
@@ -232,6 +234,7 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
 
   const subtitulo = textoOpcional(datos.subtitulo, 'subtitulo', errores);
   const descripcion = textoOpcional(datos.descripcion, 'descripcion', errores);
+  const premio = textoOpcional(datos.premio, 'premio', errores);
 
   // "masInfo": un texto (párrafos separados por una línea en blanco) o una lista de párrafos.
   let masInfo: string[] | undefined;
@@ -365,7 +368,7 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
     }
   }
 
-  const conocidos = new Set(['$schema', 'slug', 'nombre', 'subtitulo', 'descripcion', 'masInfo', 'equipo', 'orden', 'activo', 'demo', 'archivos', 'reproduccion', 'animacion']);
+  const conocidos = new Set(['$schema', 'slug', 'nombre', 'subtitulo', 'descripcion', 'premio', 'masInfo', 'equipo', 'orden', 'activo', 'demo', 'archivos', 'reproduccion', 'animacion']);
   for (const clave of Object.keys(datos)) {
     if (!conocidos.has(clave)) advertencias.push(`Campo desconocido "${clave}" (se ignora).`);
   }
@@ -374,7 +377,7 @@ export function normalizarManifiesto(datos: unknown): ResultadoNormalizacion {
   return {
     ok: true,
     advertencias,
-    manifiesto: { nombre, subtitulo, descripcion, masInfo, equipo, orden, activo, demo, archivos, reproduccion, animacion },
+    manifiesto: { nombre, subtitulo, descripcion, premio, masInfo, equipo, orden, activo, demo, archivos, reproduccion, animacion },
   };
 }
 

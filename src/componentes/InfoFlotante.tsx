@@ -8,7 +8,7 @@
  */
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import type { ReceptorCuadro } from './useInfoFlotante.ts';
-import { IconoExpandir } from './Iconos.tsx';
+import { IconoExpandir, IconoPremio, Premio } from './Iconos.tsx';
 import { rectDe, ubicarTarjeta, type ContenidoInfo, type Lado, type Punto, type Rect, type Ubicacion } from '../ra/info-flotante.ts';
 
 /** Segundos que una nueva ubicación (tarjeta ↔ chip) debe sostenerse antes de cambiar. */
@@ -149,6 +149,7 @@ export function InfoFlotante({
             i
           </span>
           Más sobre {info.nombre}
+          {info.premio && <IconoPremio className="ra-info-chip__premio" />}
         </button>
       </div>
     );
@@ -171,6 +172,7 @@ export function InfoFlotante({
           </button>
         </header>
         <div className="ra-info__cuerpo">
+          {info.premio && <Premio texto={info.premio} className="premio--chico" />}
           {info.subtitulo && <p className="ra-info__subtitulo">{info.subtitulo}</p>}
           {info.parrafos.map((p) => (
             <p key={p}>{p}</p>

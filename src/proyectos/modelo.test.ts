@@ -205,3 +205,17 @@ describe('normalizarManifiesto: masInfo', () => {
     expect(malo.ok).toBe(false);
   });
 });
+
+describe('normalizarManifiesto: premio', () => {
+  it('acepta un texto, es opcional y no genera advertencias', () => {
+    const r = normalizarManifiesto({ nombre: 'X', premio: '  2.º puesto · CoNaIISI 2026 ' });
+    expect(r.ok && r.manifiesto.premio).toBe('2.º puesto · CoNaIISI 2026');
+    expect(r.ok && r.advertencias).toEqual([]);
+    const vacio = normalizarManifiesto({ nombre: 'X' });
+    expect(vacio.ok && vacio.manifiesto.premio).toBeUndefined();
+  });
+
+  it('rechaza tipos inválidos', () => {
+    expect(normalizarManifiesto({ nombre: 'X', premio: 2 }).ok).toBe(false);
+  });
+});

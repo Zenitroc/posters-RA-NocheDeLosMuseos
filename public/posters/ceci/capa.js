@@ -321,6 +321,7 @@ const SPRITES_SRC = {"pareja":{"x":398,"y":392,"w":198,"h":214,"pw":226,"ph":244
  * El corazón del reloj late con su pulso. Las seis funciones se encienden de a una (alternando lados) y
  * mandan una señal al celular o al reloj; cada ícono tiene su gesto (voz, alerta de caída, recordatorio,
  * chispas de la gimnasia mental, latido, escudo que brilla). Flotan lucecitas cálidas por el fondo.
+ * Junto al título cae una escarapela dorada: 2.º puesto en el CoNaIISI 2026.
  */
 const W = 1131, H = 1600, DW = 990, DH = 1400, DUR = 10;
 const NAVY = [44, 72, 98], BLUE = [54, 106, 145], GREEN = [60, 120, 90], CORAL = [226, 110, 95], WARM = [255, 200, 120], WHITE = [255, 255, 255];
@@ -356,6 +357,76 @@ function corazoncito(ctx, x, y, s, color, a) {
   ctx.bezierCurveTo(-7, -3, -4, -9, 0, -5); ctx.bezierCurveTo(4, -9, 7, -3, 0, 3);
   ctx.fillStyle = rgba(color, a); ctx.shadowColor = rgba(color, a); ctx.shadowBlur = 6; ctx.fill();
   ctx.restore();
+}
+
+/** Muelle amortiguado: 0 → 1 con un pequeño rebote (p en segundos desde el inicio). */
+function resorte(p) {
+  if (p <= 0) return 0;
+  return 1 - Math.exp(-6 * p) * Math.cos(9 * p);
+}
+
+const ORO = [232, 178, 60], ORO_CLARO = [255, 226, 140];
+
+/** Escarapela del premio (2.º puesto, CoNaIISI 2026), colgada a la derecha del título. */
+function escarapela(ctx, t, g) {
+  const t0 = 0.8, k = resorte(t - t0);
+  if (k <= 0.001 || g <= 0.002) return;
+  const cx = 820, cy = 138, R = 58;
+  const mece = 0.05 * Math.sin((t - t0) * 1.7) * smooth(t0, t0 + 1.5, t);
+  ctx.save();
+  ctx.globalAlpha = clamp(g * smooth(t0, t0 + 0.25, t));
+  // cuelga de un punto arriba: cae desde ahí y se balancea
+  ctx.translate(cx, cy - R - 30);
+  ctx.rotate(mece + (1 - k) * -0.5);
+  ctx.translate(0, R + 30 - (1 - k) * 120);
+  ctx.scale(0.6 + 0.4 * k, 0.6 + 0.4 * k);
+
+  // cintas
+  for (const s of [-1, 1]) {
+    ctx.save(); ctx.rotate(s * 0.32 + 0.04 * Math.sin(t * 2.3 + s));
+    ctx.beginPath();
+    ctx.moveTo(-15, 20); ctx.lineTo(15, 20); ctx.lineTo(15, R + 52); ctx.lineTo(0, R + 40); ctx.lineTo(-15, R + 52); ctx.closePath();
+    ctx.fillStyle = s < 0 ? rgba(NAVY, 1) : rgba(CORAL, 1); ctx.fill();
+    ctx.restore();
+  }
+  // halo
+  blob(ctx, 0, 0, R * 1.9, ORO_CLARO, 0.35 * (0.7 + 0.3 * Math.sin(t * 3)));
+  // borde festoneado dorado
+  ctx.beginPath();
+  for (let i = 0; i <= 72; i++) {
+    const ang = (i / 72) * TAU, r = R + 5 * Math.cos(ang * 18);
+    if (i === 0) ctx.moveTo(Math.cos(ang) * r, Math.sin(ang) * r); else ctx.lineTo(Math.cos(ang) * r, Math.sin(ang) * r);
+  }
+  ctx.closePath();
+  const go = ctx.createLinearGradient(-R, -R, R, R);
+  go.addColorStop(0, rgba(ORO_CLARO, 1)); go.addColorStop(0.5, rgba(ORO, 1)); go.addColorStop(1, rgba([190, 135, 35], 1));
+  ctx.fillStyle = go; ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 4; ctx.fill();
+  ctx.shadowColor = 'transparent';
+  // disco central
+  ctx.beginPath(); ctx.arc(0, 0, R - 11, 0, TAU); ctx.fillStyle = rgba(NAVY, 1); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, R - 15, 0, TAU); ctx.lineWidth = 1.5; ctx.strokeStyle = rgba(ORO_CLARO, 0.8); ctx.stroke();
+  // textos
+  const fuente = (peso, px) => `${peso} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = rgba(ORO_CLARO, 1);
+  ctx.font = fuente(800, 34); ctx.fillText('2.º', 0, -9);
+  ctx.font = fuente(700, 10.5); ctx.fillText('PUESTO', 0, 14);
+  ctx.fillStyle = '#fff'; ctx.font = fuente(700, 8.5); ctx.fillText('CoNaIISI 2026', 0, 28);
+  // brillo que cruza el disco
+  const q = ((t - t0 - 0.6) % 3.2) / 1.1;
+  if (q > 0 && q < 1) {
+    ctx.save(); ctx.beginPath(); ctx.arc(0, 0, R + 5, 0, TAU); ctx.clip();
+    const bx = -R * 1.6 + q * R * 3.2, gb = ctx.createLinearGradient(bx - 22, -R, bx + 22, R);
+    gb.addColorStop(0, 'rgba(255,255,255,0)'); gb.addColorStop(0.5, 'rgba(255,255,255,0.55)'); gb.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gb; ctx.fillRect(-R - 6, -R - 6, 2 * R + 12, 2 * R + 12); ctx.restore();
+  }
+  ctx.restore();
+  // destellos alrededor al llegar y de vez en cuando
+  emitters(t, t0 + 0.2, 8.4, 2.6, 1.0, (p, i) => {
+    for (let s = 0; s < 3; s++) {
+      const ang = rnd(i, s) * TAU, d = R + 12 + 22 * p;
+      sparkle(ctx, cx + Math.cos(ang) * d, cy + Math.sin(ang) * d, 9 * (1 - p) + 3, ORO_CLARO, g * Math.sin(Math.PI * p));
+    }
+  });
 }
 
 function render(ctx, t) {
@@ -451,6 +522,9 @@ function render(ctx, t) {
     else if (gesto === 'remedio') { const r = 0.12 * Math.sin(k * Math.PI * 6) * a; ctx.save(); ctx.translate(ix, iy); ctx.rotate(r); glowDot(ctx, 0, -20, 8, WARM, a); ctx.restore(); }
     else if (gesto === 'escudo') { sparkle(ctx, ix + 8, iy - 10, 16, WHITE, a); sonar(ctx, ix, iy, k, 24, 56, 2.4, GREEN, a); }
   });
+
+  // ---- Premio: 2.º puesto en el CoNaIISI 2026
+  escarapela(ctx, t, g);
 
   // ---- Avisos de CECI (chips)
   const vent = (a, b) => [g * env(t, a, a + 0.4, b - 0.5, b), clamp((t - a) / 0.6)];

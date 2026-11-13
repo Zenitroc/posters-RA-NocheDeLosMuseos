@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
-import { IconoCerrar, IconoCheck, IconoRepetir, IconoVideo } from './Iconos.tsx';
+import { IconoCerrar, IconoCheck, IconoRepetir, IconoVideo, Premio } from './Iconos.tsx';
 import { mensajeError, type CodigoErrorRA } from '../ra/errores.ts';
 import { porcentajeCarga } from '../ra/estado.ts';
 import type { ProgresoCarga } from '../ra/sesion.ts';
@@ -138,6 +138,7 @@ export function HojaInfo({
             <p className="ra-hoja__etiqueta">Proyecto final · UTN FRBA</p>
             <h2 id="titulo-hoja">{info.nombre}</h2>
             {info.subtitulo && <p className="ra-hoja__subtitulo">{info.subtitulo}</p>}
+            {info.premio && <Premio texto={info.premio} />}
           </div>
           <button type="button" className="ra-boton-icono" onClick={alCerrar} aria-label="Cerrar" ref={cerrarRef}>
             <IconoCerrar />
