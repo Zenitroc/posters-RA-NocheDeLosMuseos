@@ -22,10 +22,10 @@ La animación de cada póster puede ser:
 El proyecto **ZonAR** usa sus recursos definitivos: póster original (1131×1600), capa
 `ZonarAnim` y MP4 de respaldo. El código fuente de su animación está en `recursos-fuente/zonar/`.
 
-**AgroLink, Arbiter, INFRABOT, VictoriaX, DrHero, PreTriage, Adaliza, CECI y AssistVet** también tienen capa Canvas + MP4 de respaldo. Sus
+**AgroLink, Arbiter, INFRABOT, VictoriaX, DrHero, PreTriage, Adaliza, CECI, AssistVet, Learn To Lead, EnerScope, Vialis, AeroInspect, HydroPilot, SyntaxLearn, Drino y VigIA** también tienen capa Canvas + MP4 de respaldo. Sus
 animaciones están en `recursos-fuente/<slug>/animacion.js` (utilidades comunes en
 `recursos-fuente/_comun/efectos.js`) y los pósters originales en `recursos-fuente/<slug>/original/`.
-Mueven **recortes reales del póster** (el camión, la foto de la sala, el robot, las ilustraciones;
+Mueven **recortes reales del póster** (el camión, la foto de la sala, el robot, las ilustraciones, el buque de EnerScope;
 se declaran en `recursos-fuente/<slug>/sprites.json`) y le suman fondos en movimiento (nubes, papeles,
 luces, burbujas) y efectos sobre los elementos del diseño.
 Un recorte puede llevar **silueta** (polígono o automática separando el fondo claro) y una **placa
@@ -38,7 +38,7 @@ AssistVet). El formato está documentado en `recursos-fuente/construir.mjs`.
 lado alrededor del póster (la RA agranda el plano en la misma proporción): los personajes pueden salir
 a "la pared" (el camión de AgroLink avanza hacia vos y pasa por detrás del póster, el paciente de PreTriage camina hasta la
 guardia, el robot de INFRABOT vuela, el dictado y el informe de AssistVet se escriben a los costados, el celular de DrHero salta y rota, los documentos de Arbiter se sellan
-afuera). Con `"sombras": true` en `sprites.json` se generan el hueco que deja el recorte en el papel y
+afuera, el pentagrama que sale de la batuta de Learn To Lead sigue por la pared, el reporte de AeroInspect se arma al costado). Con `"sombras": true` en `sprites.json` se generan el hueco que deja el recorte en el papel y
 su sombra proyectada; `despegar()` (en `_comun/efectos.js`) los usa. El MP4 de respaldo queda recortado
 al póster; la vista sin RA muestra el lienzo completo.
 **AssistVet** usa como animación principal un **video de IA** (el perro sale del póster, se sienta y saca la
@@ -47,6 +47,9 @@ la zona del perro; textos, logos y costados son los del póster real (la IA los 
 angosto). Si generan otra toma, reemplacen `recursos-fuente/assistvet/original/video-ia.mp4` y corran
 `python recursos-fuente/assistvet/componer-video.py` (requiere numpy, opencv-python y ffmpeg). Su capa Canvas
 queda de respaldo y `construir.mjs video` no pisa ese MP4.
+
+Los pósters no tienen por qué ser 1131×1600: el tamaño sale del `W`×`H` de cada `animacion.js` y las
+coordenadas de diseño son 990 de ancho con el alto proporcional (EnerScope es 2:3, 1066×1600 → 990×1486).
 
 Para regenerar tras ajustar una animación:
 
@@ -71,8 +74,8 @@ muestra en la página del proyecto.
 ### Premios
 
 Con `"premio"` en el `proyecto.json` (p. ej. `"2.º puesto · CoNaIISI 2026"`), el proyecto muestra una insignia
-dorada en el catálogo, en su página y en la tarjeta flotante de la RA. CECI además lo celebra en su
-animación con una escarapela junto al título.
+dorada en el catálogo, en su página y en la tarjeta flotante de la RA. CECI (2.º puesto) y SyntaxLearn
+(1.er puesto, CoNaIISI 2026) además lo celebran en su animación con una escarapela dorada.
 
 ## Rutas del sitio
 

@@ -1,0 +1,32 @@
+{
+  "nombre": "VigIA",
+  "subtitulo": "Lo que no se vigila se pierde",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma web que analiza la posición de cada vaca, registrada por una caravana electrónica, y alerta al productor ante el celo, señales de enfermedad o una salida del campo.",
+  "masInfo": [
+    "En la mayoría de los tambos de Argentina, los problemas del rodeo se detectan solamente mirando a los animales. Esto hace que muchos pasen inadvertidos y generen pérdidas económicas importantes para los productores ganaderos.",
+    "VigIA es una plataforma web que ayuda a estos productores a anticiparse. Cada vaca lleva una caravana electrónica en la oreja que detecta su posición en tiempo real, registrando durante todo el día cuánto se mueve y por dónde anda. VigIA analiza esos datos, aprende cuál es el comportamiento normal de cada animal y envía una alerta cuando algo cambia. Por ejemplo, puede identificar el celo, un momento breve y clave para inseminar: si se pasa por alto, se pierden unas tres semanas esperando hasta el siguiente. También reconoce señales tempranas de enfermedad y alerta si una vaca sale del campo, ante un posible robo.",
+    "Nuestro objetivo es ofrecer al productor ganadero argentino una herramienta que convierta los datos que ya generan los propios animales en alertas claras, para que pueda actuar a tiempo y optimizar su campo."
+  ],
+  "equipo": [
+    "Julián Cardoso Landin",
+    "Tomás Agustín Fabrizio",
+    "Matías Gabriel Jastrebow",
+    "Iñaki Joaquín Lorences",
+    "Santiago Méndez"
+  ],
+  "orden": 18,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "VigIAAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

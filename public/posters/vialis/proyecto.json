@@ -1,0 +1,32 @@
+{
+  "nombre": "Vialis",
+  "subtitulo": "Plataforma de simulación predictiva de líneas de transporte público para el AMBA",
+  "descripcion": "Proyecto final de UTN FRBA: una herramienta para planificar y mejorar el transporte público, que estima demanda, tiempos e ingresos de cada recorrido a partir de los viajes SUBE.",
+  "masInfo": [
+    "Vialis es una herramienta que ayuda a planificar y mejorar el transporte público. Permite diseñar nuevos recorridos de colectivos, modificar líneas existentes y evaluar alternativas ante cortes de calles.",
+    "Para ello, utiliza datos de viajes del sistema SUBE y recorridos actuales para estimar la demanda de pasajeros, los tiempos de viaje y los ingresos de cada propuesta. Su objetivo es ayudar a quienes planifican el transporte a comparar opciones y tomar decisiones mejor informadas antes de implementar cambios que afectan a miles de personas."
+  ],
+  "equipo": [
+    "Santiago Corrales Petrocelli",
+    "Federico Matías Gallardo",
+    "Manuel Garcia Frigo",
+    "Federico Nimiczynicer",
+    "Tomás Eitan Podolsky"
+  ],
+  "orden": 13,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "VialisAnim",
+      "ancho": 1131,
+      "alto": 1600,
+      "ladoMaximo": 1536
+    }
+  }
+}

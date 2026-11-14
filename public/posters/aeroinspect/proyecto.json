@@ -1,0 +1,31 @@
+{
+  "nombre": "AeroInspect",
+  "subtitulo": "Inspeccioná sin riesgos. Operá sin interrupciones.",
+  "descripcion": "Proyecto final de UTN FRBA: drones e inteligencia artificial para inspeccionar la infraestructura externa de plantas de acopio y anticipar el mantenimiento.",
+  "masInfo": [
+    "AeroInspect usa drones e inteligencia artificial para inspeccionar infraestructura externa de plantas de acopio. Reemplaza las revisiones manuales en altura, riesgosas y poco frecuentes, por vuelos automáticos que detectan grietas, corrosión y deformaciones y generan reportes para anticipar el mantenimiento."
+  ],
+  "equipo": [
+    "Camila Aylén Solimano",
+    "Agustín Podhainy Vignola",
+    "Thiago Martín González",
+    "Luca Cesari",
+    "María Emilia Andersen"
+  ],
+  "orden": 14,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "AeroInspectAnim",
+      "ancho": 1131,
+      "alto": 1600,
+      "ladoMaximo": 1536
+    }
+  }
+}

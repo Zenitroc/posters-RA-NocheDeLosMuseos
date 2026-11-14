@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { IconoCamara, IconoPausa, IconoPlay, IconoRepetir, Logo } from '../componentes/Iconos.tsx';
+import { IconoCamara, IconoPausa, IconoPlay, IconoRepetir } from '../componentes/Iconos.tsx';
 import { HojaInfo, PanelCarga, PanelError } from '../componentes/PanelesRA.tsx';
 import { useMantenerPantallaEncendida } from '../componentes/useMantenerPantalla.ts';
 import { useTitulo } from '../componentes/useTitulo.ts';
@@ -236,7 +236,7 @@ function Camara({ url, slugs }: { url: string; slugs: string[] }) {
       <div className="ra-interfaz">
         <header className="ra-barra-sup" ref={barraSupRef}>
           <Link to="/proyectos" className="ra-marca" aria-label={`${TEXTOS.titulo}: ver todos los proyectos`}>
-            <Logo className="ra-marca__logo" />
+            <img className="ra-marca__logo" src="/logo-utnba-transparente.png" alt="" width="376" height="120" />
             <span>{detectado ? actual.nombre : TEXTOS.titulo}</span>
           </Link>
           <Link to="/proyectos" className="ra-enlace">

@@ -1,0 +1,31 @@
+{
+  "nombre": "HydroPilot",
+  "subtitulo": "Precisión en cada gota",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma inteligente para cultivos hidropónicos de lechuga que convierte los datos del invernadero en decisiones oportunas.",
+  "masInfo": [
+    "HydroPilot es una plataforma inteligente para cultivos hidropónicos de lechuga que ayuda a los productores a tomar mejores decisiones y optimizar su producción. A través de un nodo IoT, recibe en tiempo real la información del invernadero, controla de forma automática la solución nutritiva y, mediante inteligencia artificial, detecta problemas en las plantas y alerta a tiempo.",
+    "Además, permite seguir la evolución de cada lote, anticipar el momento óptimo de cosecha de la baby leaf y de la lechuga adulta, y planificar la estrategia más rentable. Todo el sistema combina el estado real de los lotes con el historial del invernadero y gana precisión con cada ciclo. Así, HydroPilot convierte los datos del cultivo en decisiones oportunas: menos pérdidas, menos trabajo manual y una producción más previsible."
+  ],
+  "equipo": [
+    "Priscila Sharon D'Antoni",
+    "María Sol García Linfozzi",
+    "Melina Luna Mazzeo",
+    "Leandro Gabriel Osuna",
+    "Lara Melany Pallenzona"
+  ],
+  "orden": 15,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "HydroPilotAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

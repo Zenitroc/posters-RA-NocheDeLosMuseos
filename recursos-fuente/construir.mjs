@@ -29,6 +29,14 @@ const PROYECTOS = {
   ceci: { global: 'CeciAnim' },
   // El MP4 de AssistVet sale del video de IA (recursos-fuente/assistvet/componer-video.py), no de la capa.
   assistvet: { global: 'AssistVetAnim', videoPropio: true },
+  'learn-to-lead': { global: 'LearnToLeadAnim' },
+  enerscope: { global: 'EnerScopeAnim' }, // póster 2:3 (1066×1600): diseño 990×1486
+  vialis: { global: 'VialisAnim' },
+  aeroinspect: { global: 'AeroInspectAnim' },
+  hydropilot: { global: 'HydroPilotAnim' },
+  syntaxlearn: { global: 'SyntaxLearnAnim' },
+  drino: { global: 'DrinoAnim' },
+  vigia: { global: 'VigIAAnim' },
 };
 
 const { values, positionals } = parseArgs({
@@ -38,7 +46,8 @@ const { values, positionals } = parseArgs({
 const [modo, ...resto] = positionals;
 
 /**
- * Recortes del póster (sprites.json, coords de diseño 990×1400). Cada entrada es:
+ * Recortes del póster (sprites.json, coords de diseño: 990 de ancho y el alto proporcional al póster,
+ * 1400 para los 1131×1600). Cada entrada es:
  *   [x, y, w, h, izq, arr, der, aba]                         → rectángulo con bordes difuminados
  * o un objeto con:
  *   r: [x, y, w, h]          rectángulo del recorte
@@ -335,10 +344,13 @@ if (modo === 'capa') {
       for (const soloCapa of [false, true]) {
         const b64 = await pagina.evaluate(({ t, soloCapa }) => {
           // Con margen se ve también "la pared" alrededor del póster (lo que sale del papel).
-          const m = window.__anim.MARGIN || 0, mx = Math.round(1131 * m), my = Math.round(1600 * m);
-          const c = document.createElement('canvas'); c.width = 1131 + 2 * mx; c.height = 1600 + 2 * my;
+          // El tamaño del póster sale de la capa (W×H de su animacion.js, sin el margen).
+          const m = window.__anim.MARGIN || 0;
+          const PW = Math.round(window.__anim.WIDTH / (1 + 2 * m)), PH = Math.round(window.__anim.HEIGHT / (1 + 2 * m));
+          const mx = Math.round(PW * m), my = Math.round(PH * m);
+          const c = document.createElement('canvas'); c.width = PW + 2 * mx; c.height = PH + 2 * my;
           const x = c.getContext('2d');
-          if (!soloCapa) { x.fillStyle = '#6f7178'; x.fillRect(0, 0, c.width, c.height); x.drawImage(window.__img, mx, my, 1131, 1600); }
+          if (!soloCapa) { x.fillStyle = '#6f7178'; x.fillRect(0, 0, c.width, c.height); x.drawImage(window.__img, mx, my, PW, PH); }
           window.__anim.render(x, t);
           return c.toDataURL('image/png').split(',')[1];
         }, { t, soloCapa });
@@ -357,7 +369,10 @@ if (modo === 'capa') {
     const base64 = await conPagina(slug, async pagina => {
       await pagina.addScriptTag({ content: muxerJs });
       return pagina.evaluate(async () => {
-        const FPS = 30, W = 1132, H = 1600, dur = window.__anim.DURATION, n = Math.round(FPS * dur);
+        // H.264 pide lados pares: 1131×1600 → 1132×1600.
+        const m = window.__anim.MARGIN || 0;
+        const PW = Math.round(window.__anim.WIDTH / (1 + 2 * m)), PH = Math.round(window.__anim.HEIGHT / (1 + 2 * m));
+        const FPS = 30, W = PW + (PW % 2), H = PH + (PH % 2), dur = window.__anim.DURATION, n = Math.round(FPS * dur);
         const c = document.createElement('canvas'); c.width = W; c.height = H;
         const x = c.getContext('2d');
         const muxer = new Mp4Muxer.Muxer({ target: new Mp4Muxer.ArrayBufferTarget(), video: { codec: 'avc', width: W, height: H }, fastStart: 'in-memory' });
@@ -368,8 +383,7 @@ if (modo === 'capa') {
           x.clearRect(0, 0, W, H);
           x.drawImage(window.__img, 0, 0, W, H);
           // El MP4 (respaldo) cubre sólo el póster: lo que sale del papel queda fuera de cuadro.
-          const m = window.__anim.MARGIN || 0;
-          x.save(); x.scale(W / 1131, 1); x.translate(-1131 * m, -1600 * m); window.__anim.render(x, i / FPS); x.restore();
+          x.save(); x.scale(W / PW, H / PH); x.translate(-PW * m, -PH * m); window.__anim.render(x, i / FPS); x.restore();
           const f = new VideoFrame(c, { timestamp: Math.round((i * 1e6) / FPS), duration: Math.round(1e6 / FPS) });
           enc.encode(f, { keyFrame: i % 30 === 0 }); f.close();
           if (enc.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 5));

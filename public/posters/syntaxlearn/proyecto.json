@@ -1,0 +1,33 @@
+{
+  "nombre": "SyntaxLearn",
+  "subtitulo": "Plataforma de tutoría inteligente para aprender Sintaxis y Semántica de los Lenguajes",
+  "premio": "1.er puesto · CoNaIISI 2026",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma web educativa para practicar autómatas, expresiones regulares, gramáticas y análisis sintáctico, con corrección al instante y pistas generadas por IA.",
+  "masInfo": [
+    "SyntaxLearn es una plataforma web educativa desarrollada en la UTN FRBA para la materia Sintaxis y Semántica de los Lenguajes. Los estudiantes practican autómatas, expresiones regulares, gramáticas y análisis sintáctico con ejercicios interactivos que se corrigen al instante.",
+    "Un motor propio verifica cada respuesta, y la IA genera pistas, lecciones y ejercicios de refuerzo a medida. Además, los docentes reciben un informe del avance de cada curso para la toma de decisiones.",
+    "Ganador del primer puesto en el Congreso Nacional de Ingeniería Informática y Sistemas de Información 2026 (CoNaIISI)."
+  ],
+  "equipo": [
+    "Lucía Gandur",
+    "Joaquín Menazzi",
+    "Santiago Boero",
+    "Esteban Derghazarian",
+    "Belén Busca"
+  ],
+  "orden": 16,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "SyntaxLearnAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

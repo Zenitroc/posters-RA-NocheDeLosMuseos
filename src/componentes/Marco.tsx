@@ -1,6 +1,5 @@
 import { Link, Outlet, useNavigation } from 'react-router';
 import { TEXTOS } from '../config.ts';
-import { Logo } from './Iconos.tsx';
 
 /** Estructura común de las páginas (todas menos la experiencia de RA, que es pantalla completa). */
 export function Marco() {
@@ -14,15 +13,12 @@ export function Marco() {
       <header className="cabecera">
         <div className="contenedor cabecera__fila">
           <Link to="/" className="marca">
-            <Logo className="marca__logo" />
+            <img className="marca__logo" src="/logo-utnba-transparente.png" alt="" width="376" height="120" />
             <span className="marca__texto">
               {TEXTOS.titulo}
               <small>Noche de los Museos · UTN BA</small>
             </span>
           </Link>
-          <a className="logo-utn" href="https://www.frba.utn.edu.ar" target="_blank" rel="noopener noreferrer">
-            <img src="/logo-utnba.png" alt="UTN BA — Facultad Regional Buenos Aires" width="165" height="52" />
-          </a>
           <nav className="cabecera__nav" aria-label="Principal">
             <Link to="/proyectos">Proyectos</Link>
             <Link to="/" className="boton boton--chico boton--primario">

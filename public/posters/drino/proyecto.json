@@ -1,0 +1,30 @@
+{
+  "nombre": "Drino",
+  "subtitulo": "Acompañamiento inteligente para las adicciones. Sin estigmas. Las 24 horas.",
+  "descripcion": "Proyecto final de UTN FRBA: una aplicación móvil con inteligencia artificial que acompaña a personas en recuperación de consumo problemático de sustancias, sobre todo en los momentos de craving.",
+  "masInfo": [
+    "Drino es una aplicación móvil con inteligencia artificial que acompaña a personas en recuperación de consumo problemático de sustancias, tanto en el día a día como en los momentos de mayor vulnerabilidad. Busca resolver un problema concreto: evitar la soledad al atravesar los episodios de craving, es decir, las ganas intensas de consumir, que duran entre 10 y 20 minutos y ocurren de forma impredecible, muchas veces cuando no hay ningún profesional ni red de apoyo disponible.",
+    "Su objetivo es estar presente en esos momentos, ofreciendo un espacio de escucha sin juicio, abierto las 24 horas y de acceso anónimo, inspirado en los grupos de autoayuda. Para lograrlo, combina un test de autodiagnóstico, un chat diario de desahogo que aprende de cada usuario, un modo de asistencia durante el craving y un sistema que anticipa situaciones de riesgo y envía alertas preventivas. Drino no reemplaza el tratamiento profesional, sino que lo complementa."
+  ],
+  "equipo": [
+    "Melany Belén Holweger",
+    "Mariano Andrés Pessina",
+    "Matías Agustín Varela",
+    "Nicolás Agustín Bertoni"
+  ],
+  "orden": 17,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "DrinoAnim",
+      "ancho": 1131,
+      "alto": 1600
+    }
+  }
+}

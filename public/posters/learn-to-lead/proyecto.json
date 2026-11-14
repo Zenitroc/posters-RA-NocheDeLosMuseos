@@ -1,0 +1,28 @@
+{
+  "nombre": "Learn To Lead",
+  "subtitulo": "Leadership for modern teams",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma para entrenar el liderazgo de equipos. Simulá situaciones reales, creá tus propios escenarios, analizá tu desempeño con IA y mejorá con métricas y progreso.",
+  "equipo": [
+    "Tomás Cerezo",
+    "Fermin Lucero",
+    "Ignacio Oteiza",
+    "Facundo Piaggio",
+    "Carlos Alberto Vasquez Landaeta"
+  ],
+  "orden": 11,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "LearnToLeadAnim",
+      "ancho": 1131,
+      "alto": 1600,
+      "ladoMaximo": 1536
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "nombre": "EnerScope",
+  "subtitulo": "Modelamos hoy las decisiones que transforman el mañana",
+  "descripcion": "Proyecto final de UTN FRBA: una plataforma digital para modelar, simular y comparar escenarios de la cadena del gas natural licuado (GNL), desde la producción hasta la exportación.",
+  "masInfo": [
+    "EnerScope es una plataforma digital que permite modelar, simular y comparar distintos escenarios que van desde la producción hasta la exportación de gas natural licuado (GNL), un recurso energético con gran potencial para el desarrollo argentino. Su objetivo es facilitar la planificación de inversiones como encontrar restricciones dentro de la cadena de suministro, representando de manera visual todas las etapas del proceso, desde la extracción del gas hasta su exportación.",
+    "A través de simular estos escenarios, permite identificar limitaciones en la infraestructura, analizar costos y evaluar cómo impactarían posibles mejoras en el funcionamiento de toda la cadena. De esta manera, EnerScope busca transformar decisiones complejas en información clara y comparable, ayudando a reducir riesgos, optimizar recursos y contribuir al desarrollo del sector energético."
+  ],
+  "equipo": [
+    "Franco Nehuen Pasqualino",
+    "Theo Dyzenchaux",
+    "Lucas Thier",
+    "Julian López",
+    "Camila Agustina Sanchez"
+  ],
+  "orden": 12,
+  "activo": true,
+  "reproduccion": {
+    "bucle": true,
+    "ajuste": "auto",
+    "alPerderSeguimiento": "pausar"
+  },
+  "animacion": {
+    "modo": "auto",
+    "canvas": {
+      "global": "EnerScopeAnim",
+      "ancho": 1066,
+      "alto": 1600
+    }
+  }
+}
