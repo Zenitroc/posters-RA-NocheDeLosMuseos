@@ -20,7 +20,7 @@
     "alPerderSeguimiento": "pausar"
   },
   "animacion": {
-    "modo": "auto",
+    "modo": "video",
     "canvas": {
       "global": "AeroInspectAnim",
       "ancho": 1131,

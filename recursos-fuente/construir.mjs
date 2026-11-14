@@ -27,13 +27,13 @@ const PROYECTOS = {
   pretriage: { global: 'PreTriageAnim' },
   adaliza: { global: 'AdalizaAnim' },
   ceci: { global: 'CeciAnim' },
-  // Los MP4 de AssistVet, Learn To Lead, EnerScope y VigIA salen de videos de IA (assistvet/componer-video.py
+  // Los MP4 de AssistVet, Learn To Lead, EnerScope, VigIA y AeroInspect salen de videos de IA (assistvet/componer-video.py
   // y _comun/componer-video-ia.py), no de la capa: `video` no los pisa.
   assistvet: { global: 'AssistVetAnim', videoPropio: true },
   'learn-to-lead': { global: 'LearnToLeadAnim', videoPropio: true },
   enerscope: { global: 'EnerScopeAnim', videoPropio: true }, // póster 2:3 (1066×1600): diseño 990×1486
   vialis: { global: 'VialisAnim' },
-  aeroinspect: { global: 'AeroInspectAnim' },
+  aeroinspect: { global: 'AeroInspectAnim', videoPropio: true },
   hydropilot: { global: 'HydroPilotAnim' },
   syntaxlearn: { global: 'SyntaxLearnAnim' },
   drino: { global: 'DrinoAnim' },

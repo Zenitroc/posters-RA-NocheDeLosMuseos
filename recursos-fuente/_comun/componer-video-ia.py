@@ -1,5 +1,5 @@
 """
-Video de IA → animacion.mp4 del póster (VigIA, EnerScope, Learn To Lead).
+Video de IA → animacion.mp4 del póster (VigIA, EnerScope, Learn To Lead, AeroInspect).
 
 Los videos generados (Gemini/Veo, 720×1280, 24 fps) no son el póster recortado sin más: la IA lo achica al
 ancho del video, reacomoda el diseño para llenar el 9:16 (estira la foto, corre bloques), deforma textos y a
@@ -13,7 +13,7 @@ veces mueve la cámara. Este script, para cada cuadro:
   4. funde el primer y el último tramo con el póster para que el loop sea invisible.
 
   python recursos-fuente/_comun/componer-video-ia.py <slug> [carpeta-debug]
-  slug: vigia | enerscope | learn-to-lead
+  slug: vigia | enerscope | learn-to-lead | aeroinspect
   Entrada: recursos-fuente/<slug>/original/video-ia.mp4 y public/posters/<slug>/poster.jpg
   Salida:  public/posters/<slug>/animacion.mp4
 
@@ -28,7 +28,7 @@ if len(sys.argv) < 2:
     sys.exit(__doc__)
 SLUG, DEBUG = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else None)
 H = 1600
-W = {'vigia': 1132, 'enerscope': 1066, 'learn-to-lead': 1132}[SLUG]
+W = {'vigia': 1132, 'enerscope': 1066, 'learn-to-lead': 1132, 'aeroinspect': 1132}[SLUG]
 VIDEO = os.path.join(RAIZ, 'recursos-fuente', SLUG, 'original', 'video-ia.mp4')
 SALIDA = os.path.join(RAIZ, 'public', 'posters', SLUG, 'animacion.mp4')
 P8 = cv2.resize(cv2.imread(os.path.join(RAIZ, 'public', 'posters', SLUG, 'poster.jpg')), (W, H), interpolation=cv2.INTER_AREA)
@@ -118,6 +118,25 @@ def aplicar_lut(V, t):
 
 def aplicar_color(V, g):
     return np.stack([V[..., c] * g[2 * c] + g[2 * c + 1] for c in range(3)], -1)
+
+def mascara_diferencias(V, Pb, cub, umbral=75, area=600):
+    """Lo que en el cuadro alineado difiere del póster (desenfocado), sin ruido chico, cerrado y engordado."""
+    d = np.abs(cv2.GaussianBlur(V, (0, 0), 3) - Pb).sum(axis=2)
+    m = ((d > umbral) & (cub > 0.5)).astype(np.uint8) * 255
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, k(2))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(m)
+    keep = np.zeros(n, bool); keep[1:] = st[1:, cv2.CC_STAT_AREA] > area
+    m = keep[lab].astype(np.uint8) * 255
+    return cv2.dilate(cv2.morphologyEx(m, cv2.MORPH_CLOSE, k(9)), k(8))
+
+def luts_por_cuadro(Ms, estatico, validos=None, sigma=3.0):
+    """Tabla de color por cuadro (histograma sobre `estatico`), suavizada en el tiempo."""
+    luts = []
+    for i, f in enumerate(F):
+        V = cv2.warpAffine(f, Ms[i], (W, H)).astype(np.float32)
+        c = cobertura(Ms[i], validos[i] if validos else None) > 0.99
+        luts.append(lut_histograma([V], estatico & c).ravel())
+    return suave(np.array(luts), sigma).reshape(N, 3, 256).astype(np.float32)
 
 def peso(i, entra=0.35, sale=0.6):
     """Entrada y salida fundidas con el póster impreso (loop invisible)."""
@@ -242,11 +261,7 @@ def learn_to_lead():
     # color: histograma por cuadro sobre lo estático (lista, franja y pie), suavizado en el tiempo; así se
     # compensa también el velo claro que la IA mete a mitad del video
     estatico = np.zeros((H, W), bool); estatico[890:1540, 60:1080] = True
-    luts = []
-    for i, f in enumerate(F):
-        V = cv2.warpAffine(f, Ms[i], (W, H)).astype(np.float32)
-        luts.append(lut_histograma([V], estatico & (cobertura(Ms[i], validos[i]) > 0.99)).ravel())
-    luts = suave(np.array(luts), 3.0).reshape(N, 3, 256).astype(np.float32)
+    luts = luts_por_cuadro(Ms, estatico, validos)
     # sólo entre el encabezado y la lista (ahí la IA deforma/corre textos que no se animan)
     permitido = rect(0, 118, W, 900, pluma=8)
     # figura impresa (azul oscuro) y placa limpia sin ella
@@ -265,14 +280,7 @@ def learn_to_lead():
         M = Ms[i]
         V = aplicar_lut(cv2.warpAffine(f, M, (W, H), flags=cv2.INTER_LANCZOS4).astype(np.float32), luts[i])
         cub = cobertura(M, validos[i], margen=8, pluma=5)
-        d = np.abs(cv2.GaussianBlur(V, (0, 0), 3) - Pb).sum(axis=2)
-        m = ((d > 75) & (cub > 0.5)).astype(np.uint8) * 255
-        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, k(2))
-        n, lab, st, _ = cv2.connectedComponentsWithStats(m)
-        keep = np.zeros(n, bool); keep[1:] = st[1:, cv2.CC_STAT_AREA] > 600
-        m = keep[lab].astype(np.uint8) * 255
-        m = cv2.dilate(cv2.morphologyEx(m, cv2.MORPH_CLOSE, k(9)), k(8))
-        crudas.append(m); cubs.append(cub)
+        crudas.append(mascara_diferencias(V, Pb, cub)); cubs.append(cub)
     # ¿la figura del video dejó la pose impresa? (fracción del brazo/ala derecha, dentro del video, que cambió)
     ala = (fig > 0); ala[:, :860] = False; ala[:, 1000:] = False; ala[:150] = False; ala[480:] = False
     salio = np.array([[(c[ala] > 0).mean()] for c in crudas])
@@ -295,7 +303,32 @@ def learn_to_lead():
         return V, a_vid * peso(i), base
     return cuadro
 
-cuadro = {'vigia': vigia, 'enerscope': enerscope, 'learn-to-lead': learn_to_lead}[SLUG]()
+# ---------------------------------------------------------------- AeroInspect: el dron se acerca, gira y escanea
+def aeroinspect():
+    """La IA ignoró el lienzo 9:16 y agrandó el póster al alto (×0.8), cortando los costados; la cámara
+    queda fija. El dron se acerca, gira sobre sí mismo y vuelve a escanear: los silos se iluminan y aparece
+    una grilla en el piso. Del video sale lo que difiere del póster entre el encabezado y los íconos (sin el
+    título); los costados, los textos y los íconos son los del póster."""
+    ancla = np.zeros((H, W), np.uint8); ancla[1090:1400, 130:1000] = 255; ancla[150:245, 560:990] = 255
+    Ms = similitud_por_cuadro(ancla, sigma=3.0)
+    estatico = np.zeros((H, W), bool); estatico[1090:1390, 130:1000] = True; estatico[95:150, 130:1000] = True
+    luts = luts_por_cuadro(Ms, estatico)
+    permitido = rect(0, 92, W, 1078, pluma=8) * (1 - rect(560, 150, 990, 245, pluma=6))
+    Pb = cv2.GaussianBlur(P, (0, 0), 3)
+    crudas = []
+    for i, f in enumerate(F):
+        V = aplicar_lut(cv2.warpAffine(f, Ms[i], (W, H)).astype(np.float32), luts[i])
+        crudas.append(mascara_diferencias(V, Pb, cobertura(Ms[i], margen=8, pluma=5)))
+    print('máscaras listas')
+    def cuadro(i):
+        M = Ms[i]
+        V = aplicar_lut(cv2.warpAffine(F[i], M, (W, H), flags=cv2.INTER_LANCZOS4).astype(np.float32), luts[i])
+        m = np.maximum.reduce([crudas[j] for j in range(max(0, i - 2), min(N, i + 3))])
+        a = cv2.GaussianBlur(m.astype(np.float32) / 255, (0, 0), 5) * permitido
+        return V, a * cobertura(M, margen=8, pluma=5) * peso(i), P
+    return cuadro
+
+cuadro = {'vigia': vigia, 'enerscope': enerscope, 'learn-to-lead': learn_to_lead, 'aeroinspect': aeroinspect}[SLUG]()
 
 proc = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'bgr24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
     '-an', '-c:v', 'libx264', '-preset', 'slow', '-crf', '19', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-movflags', '+faststart', SALIDA],

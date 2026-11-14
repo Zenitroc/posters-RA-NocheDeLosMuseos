@@ -8,3 +8,7 @@ salida
 .vite
 coverage
 *.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
