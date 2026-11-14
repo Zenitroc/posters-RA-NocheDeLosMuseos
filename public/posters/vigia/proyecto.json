@@ -22,7 +22,7 @@
     "alPerderSeguimiento": "pausar"
   },
   "animacion": {
-    "modo": "auto",
+    "modo": "video",
     "canvas": {
       "global": "VigIAAnim",
       "ancho": 1131,

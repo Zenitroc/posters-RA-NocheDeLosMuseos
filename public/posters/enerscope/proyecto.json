@@ -21,7 +21,7 @@
     "alPerderSeguimiento": "pausar"
   },
   "animacion": {
-    "modo": "auto",
+    "modo": "video",
     "canvas": {
       "global": "EnerScopeAnim",
       "ancho": 1066,

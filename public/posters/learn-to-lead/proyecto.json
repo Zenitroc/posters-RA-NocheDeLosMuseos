@@ -17,7 +17,7 @@
     "alPerderSeguimiento": "pausar"
   },
   "animacion": {
-    "modo": "auto",
+    "modo": "video",
     "canvas": {
       "global": "LearnToLeadAnim",
       "ancho": 1131,

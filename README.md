@@ -47,6 +47,16 @@ la zona del perro; textos, logos y costados son los del póster real (la IA los 
 angosto). Si generan otra toma, reemplacen `recursos-fuente/assistvet/original/video-ia.mp4` y corran
 `python recursos-fuente/assistvet/componer-video.py` (requiere numpy, opencv-python y ffmpeg). Su capa Canvas
 queda de respaldo y `construir.mjs video` no pisa ese MP4.
+**VigIA, EnerScope y Learn To Lead** también usan videos de IA (la vaca camina y gira la cabeza; el buque se
+mece sobre el agua; la figura baja la batuta y traza arcos de luz con datos flotando). Como la IA reacomoda el
+diseño para llenar el 9:16 (estira la foto, agranda la vaca, acerca y aleja la cámara), el script común
+`recursos-fuente/_comun/componer-video-ia.py <slug> [carpeta-debug]` alinea cada cuadro con el póster (por la
+vaca y el horizonte, por el encabezado o por la lista y el pie), iguala el color y toma del video sólo la zona
+que se anima; el dispositivo de VigIA, los textos y lo que el video no cubre salen del póster real (en Learn To
+Lead, la punta del ala que queda fuera del video se reemplaza por el fondo limpio cuando la figura se mueve).
+Para otra toma, reemplacen `recursos-fuente/<slug>/original/video-ia.mp4` y corran el script; las zonas de cada
+póster están en su función dentro del script. Con `carpeta-debug` guarda cuadros de control (en rojo, lo que
+sale del video).
 
 Los pósters no tienen por qué ser 1131×1600: el tamaño sale del `W`×`H` de cada `animacion.js` y las
 coordenadas de diseño son 990 de ancho con el alto proporcional (EnerScope es 2:3, 1066×1600 → 990×1486).

@@ -27,16 +27,17 @@ const PROYECTOS = {
   pretriage: { global: 'PreTriageAnim' },
   adaliza: { global: 'AdalizaAnim' },
   ceci: { global: 'CeciAnim' },
-  // El MP4 de AssistVet sale del video de IA (recursos-fuente/assistvet/componer-video.py), no de la capa.
+  // Los MP4 de AssistVet, Learn To Lead, EnerScope y VigIA salen de videos de IA (assistvet/componer-video.py
+  // y _comun/componer-video-ia.py), no de la capa: `video` no los pisa.
   assistvet: { global: 'AssistVetAnim', videoPropio: true },
-  'learn-to-lead': { global: 'LearnToLeadAnim' },
-  enerscope: { global: 'EnerScopeAnim' }, // póster 2:3 (1066×1600): diseño 990×1486
+  'learn-to-lead': { global: 'LearnToLeadAnim', videoPropio: true },
+  enerscope: { global: 'EnerScopeAnim', videoPropio: true }, // póster 2:3 (1066×1600): diseño 990×1486
   vialis: { global: 'VialisAnim' },
   aeroinspect: { global: 'AeroInspectAnim' },
   hydropilot: { global: 'HydroPilotAnim' },
   syntaxlearn: { global: 'SyntaxLearnAnim' },
   drino: { global: 'DrinoAnim' },
-  vigia: { global: 'VigIAAnim' },
+  vigia: { global: 'VigIAAnim', videoPropio: true },
 };
 
 const { values, positionals } = parseArgs({
@@ -363,7 +364,7 @@ if (modo === 'capa') {
   const muxerJs = readFileSync(join(RAIZ, 'node_modules/mp4-muxer/build/mp4-muxer.js'), 'utf8');
   for (const slug of resto.length ? resto : Object.keys(PROYECTOS)) {
     if (PROYECTOS[slug].videoPropio) {
-      console.log(`video ${slug}: se omite (su animacion.mp4 no sale de la capa; ver recursos-fuente/${slug}/)`);
+      console.log(`video ${slug}: se omite (su animacion.mp4 sale de un video de IA; ver el README)`);
       continue;
     }
     const base64 = await conPagina(slug, async pagina => {
